@@ -2,23 +2,33 @@
 
 cellx - command-driven drawing/visualization/animation/presentation tool
 
-![IMG](http://www.lsnl.jp/~ohsaki/software/cell/img/pdtnsim.png)
-DTN simulator visualization
+- DTN simulator visualization
 
-![IMG](http://www.lsnl.jp/~ohsaki/software/cell/img/pdtnsim-filter.png)
-DTN simulator visualization with blurring
+![screenshot](https://raw.githubusercontent.com/h-ohsaki/cellx/master/screenshot/pdtnsim.png)
 
-![IMG](http://www.lsnl.jp/~ohsaki/software/cell/img/ccn-filter.png)
-CCN simulator visualization with blurring
+- DTN simulator visualization with blurring
 
-![IMG](http://www.lsnl.jp/~ohsaki/software/cell/img/ccn-filter-3.png)
-CCN simulator visualization with blurring and blue-yellow (#3) color map
+![screenshot](https://raw.githubusercontent.com/h-ohsaki/cellx/master/screenshot/pdtnsim-filter.png)
 
-![IMG](http://www.lsnl.jp/~ohsaki/software/cell/img/pdfcsim-random.png)
-DFC-BP+ visualization
+- CCN simulator visualization with blurring
 
-![IMG](http://www.lsnl.jp/~ohsaki/software/cell/img/pdfcsim-grid.png)
-DFC-BP+ visualization
+![screenshot](https://raw.githubusercontent.com/h-ohsaki/cellx/master/screenshot/ccn-filter.png)
+
+- CCN simulator visualization with blurring and blue-yellow (#3) color map
+
+![screenshot](https://raw.githubusercontent.com/h-ohsaki/cellx/master/screenshot/ccn-filter-3.png)
+
+- DFC-BP+ visualization
+
+![screenshot](https://raw.githubusercontent.com/h-ohsaki/cellx/master/screenshot/pdfcsim-random.png)
+
+- DFC-BP+ visualization
+
+![screenshot](https://raw.githubusercontent.com/h-ohsaki/cellx/master/screenshot/pdfcsim-grid.png)
+
+- WSN simulator visualization
+
+![screenshot](https://raw.githubusercontent.com/h-ohsaki/cellx/master/screenshot/pdfcsim-grid.png)
 
 # DESCRIPTION
 
