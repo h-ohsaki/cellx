@@ -2,6 +2,8 @@
 
 cellx - command-driven drawing/visualization/animation/presentation tool
 
+# SCREENSHOTS
+
 - DTN simulator visualization
 
 ![screenshot](https://raw.githubusercontent.com/h-ohsaki/cellx/master/screenshot/pdtnsim.png)
@@ -28,7 +30,7 @@ cellx - command-driven drawing/visualization/animation/presentation tool
 
 - WSN simulator visualization
 
-![screenshot](https://raw.githubusercontent.com/h-ohsaki/cellx/master/screenshot/pdfcsim-grid.png)
+![screenshot](https://raw.githubusercontent.com/h-ohsaki/cellx/master/screenshot/pwsnsim.png)
 
 # DESCRIPTION
 
