@@ -43,35 +43,37 @@ parsed and interpreted.  The output is drawn on a window using SDL library via
 
 # CELL LANGUAGE COMMANDS
 
-    alpha (name|regexp) alpha
-    animate name (goal_x goal_y|name[(+|-)dx(+|-)dy])
-    attach name parent_name dx dy
-    color (name|regexp) color
-    define name bitmap file [(x y|name[(+|-)dx(+|-)dy])]
-    define name box [-f color] [width height color (x y|name[(+|-)dx(+|-)dy])]
-    define name ellipse [-f color] [rx ry color] [(x y|name[(+|-)dx(+|-)dy])]
-    define name line [-ht] sx sy dx dy [width color]
-    define name link src_name dst_name [width color]
-    define name polygon [-f color] [-r degree] n r [color (x y|name[(+|-)dx(+|-)dy])]
-    define name spline x1 y1 x2 y2 x3 y3 [width color]
-    define name text [-lcr] string [size color (x y|name[(+|-)dx(+|-)dy])]
-    define name wire [-ht] sx sy dx dy [width color]
-    dump
-    display
-    fade (name|regexp)...
-    hide (name|regexp)...
-    kill (name|regexp)...
-    move (name|regexp) (x y|name[(+|-)dx(+|-)dy])
-    palette symbol r g b [alpha]
-    play file
-    priority (name|regexp) level
-    resize (name|regexp) (x y|name[(+|-)dx(+|-)dy])
-    shift (name|regexp) dx dy
-    scale (name|regexp) ratio
-    sleep x
-    spring [-f filter] [-r degree] (name|regexp)... [x1 y1 x2 y2]
-    unhide (name|regexp)...
-    wait
+```
+alpha (name|regexp) alpha
+animate name (goal_x goal_y|name[(+|-)dx(+|-)dy])
+attach name parent_name dx dy
+color (name|regexp) color
+define name bitmap file [(x y|name[(+|-)dx(+|-)dy])]
+define name box [-f color] [width height color (x y|name[(+|-)dx(+|-)dy])]
+define name ellipse [-f color] [rx ry color] [(x y|name[(+|-)dx(+|-)dy])]
+define name line [-ht] sx sy dx dy [width color]
+define name link src_name dst_name [width color]
+define name polygon [-f color] [-r degree] n r [color (x y|name[(+|-)dx(+|-)dy])]
+define name spline x1 y1 x2 y2 x3 y3 [width color]
+define name text [-lcr] string [size color (x y|name[(+|-)dx(+|-)dy])]
+define name wire [-ht] sx sy dx dy [width color]
+display
+fade (name|regexp)...
+fix (name|regexp)...
+hide (name|regexp)...
+kill (name|regexp)...
+move (name|regexp) (x y|name[(+|-)dx(+|-)dy])
+palette symbol r g b [alpha]
+play file
+priority (name|regexp) level
+resize (name|regexp) (x y|name[(+|-)dx(+|-)dy])
+scale (name|regexp) ratio
+shift (name|regexp) dx dy
+sleep x
+spring [-f filter] [-r degree] (name|regexp)... [x1 y1 x2 y2]
+unhide (name|regexp)...
+wait
+```
 
 # EXAMPLES
 
