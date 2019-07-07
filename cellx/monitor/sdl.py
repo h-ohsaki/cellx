@@ -7,6 +7,19 @@
 # $Id: sdl.py,v 1.9 2019/07/06 16:11:41 ohsaki Exp ohsaki $
 #
 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import math
 import pygame
 import pygame.gfxdraw
@@ -32,9 +45,9 @@ class SDL(Null):
 
     def draw_line(self, sx, sy, dx, dy, width, color, alpha):
         theta = math.atan2(dy - sy, dx - sx)
-        xx = width / 2 * math.cos(cellx.PI / 2 + theta)
-        yy = width / 2 * math.sin(cellx.PI / 2 + theta)
-        color = self.rgba(color, alpha)
+        xx = width / 2 * math.cos(math.pi / 2 + theta)
+        yy = width / 2 * math.sin(math.pi / 2 + theta)
+        color = self.palette.rgba(color, alpha)
         pygame.gfxdraw.filled_trigon(self.screen, int(sx + xx), int(sy + yy),
                                      int(sx - xx), int(sy - yy), int(dx + xx),
                                      int(dy + yy), color)
@@ -72,11 +85,11 @@ class SDL(Null):
         x, y = obj.x, obj.y
         rect = pygame.Rect(x - obj.width / 2, y - obj.height / 2, obj.width,
                            obj.height)
-        color = self.rgba(obj.color, obj.alpha)
+        color = self.palette.rgba(obj.color, obj.alpha)
         pygame.gfxdraw.box(self.screen, rect, color)
 
     def _render_ellipse(self, obj):
-        color = self.rgba(obj.color, obj.alpha)
+        color = self.palette.rgba(obj.color, obj.alpha)
         rx, ry = int(obj.width / 2), int(obj.height / 2)
         pygame.gfxdraw.filled_ellipse(self.screen, int(obj.x), int(obj.y), rx,
                                       ry, color)
@@ -96,11 +109,11 @@ class SDL(Null):
         p3 = obj.x3, obj.y3
         # FIXME: implement line width
         pygame.gfxdraw.bezier(self.screen, [p1, p2, p3], 20,
-                              self.rgba(obj.color, obj.alpha))
+                              self.palette.rgba(obj.color, obj.alpha))
 
     def _render_polygon(self, obj):
         vertices = obj.vertices()
-        color = self.rgba(obj.color, obj.alpha)
+        color = self.palette.rgba(obj.color, obj.alpha)
         pygame.gfxdraw.filled_polygon(self.screen, vertices, color)
 
     def _render_text(self, obj):
@@ -114,7 +127,7 @@ class SDL(Null):
 
             font = self.font_cache[obj.size]
             width, height = 0, 0
-            color = self.rgba('white')
+            color = self.palette.rgba('white')
             for line in obj.text.split('\\\\'):
                 text = font.render(line, 1, color)
                 obj._text_cache.append(text)
@@ -149,7 +162,7 @@ class SDL(Null):
             self.draw_line(*segment, obj.width, obj.color, obj.alpha)
 
     def render(self, obj):
-        type = obj.type
+        type = obj.type_
         if type == 'bitmap':
             self._render_bitmap(obj)
         elif type == 'box':
