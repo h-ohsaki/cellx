@@ -1,0 +1,13 @@
+define b1 box 100 100 blue 0.5 0.5
+define b2 box 100 100 blue 0.2 0.2
+define b3 box 100 100 blue 0.7 0.7
+display
+wait
+
+color /b?/ cyan
+display
+wait
+
+color /b[13]/ green
+display
+wait

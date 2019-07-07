@@ -1,0 +1,13 @@
+define - box 100 100 blue 0.5 0.5
+define - box 100 100 blue 0.2 0.2
+define - box 100 100 blue 0.7 0.7
+display
+wait
+
+color /./ cyan
+display
+wait
+
+color /./ green
+display
+wait

@@ -1,0 +1,16 @@
+define b1 box 50 50 cyan
+define t1 text b1 14 white
+attach t1 b1
+
+define b2 box 50 50 cyan
+define t2 text b2 14 white
+attach t2 b2
+
+spring /./
+display
+wait
+
+spring /./ .1 .1 .5 .5
+display
+wait
+

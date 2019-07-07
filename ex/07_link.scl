@@ -1,0 +1,8 @@
+define b1 box 20 20 yellow 0.25 0.25
+define b2 box 20 20 yellow 0.75 0.75
+display
+wait
+
+define l1 link b1 b2 4 red
+display
+wait

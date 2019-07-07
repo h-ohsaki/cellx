@@ -1,0 +1,7 @@
+define i1 bitmap lesser.jpg 0.5 0.5
+display
+wait
+
+resize i1 1 1
+display
+wait
