@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 #
-# Copyright (c) 2018, Hiroyuki Ohsaki.
+# Copyright (c) 2018-2019, Hiroyuki Ohsaki.
 # All rights reserved.
 #
 # $Id: pycell,v 1.6 2018/05/29 05:53:26 ohsaki Exp $
@@ -11,24 +11,20 @@ import fileinput
 import os
 import sys
 
-from perl import die, warn, getopts
-import tbdump
-
-sys.path.append('/home/ohsaki/work/pycell')
-import cell
+from perlcompat import die, getopts
+import cellx
 
 def usage():
-    die(f"""\
-usage: {sys.argv[0]} [-v] [file...]
+    die("""\
+usage: {} [-v] [file...]
   -v    verbose mode
-""")
+""".format(sys.argv[0]))
 
 def main():
-    opt = getopts('v') or usage()
-    mon = cell.monitor.SDL()
-    cel = cell.Cell(monitor=mon)
-    parser = cell.Parser(cell=cel)
-
+    opt = getopts('c:M:F:L:A:m:') or usage()
+    mon = cellx.monitor.SDL()
+    cel = cellx.Cell(monitor=mon)
+    parser = cellx.Parser(cell=cel)
     for line in fileinput.input():
         line = line.rstrip()
         parser.parse_line(line)
