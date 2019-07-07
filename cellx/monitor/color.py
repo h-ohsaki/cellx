@@ -20,7 +20,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import cellx
+from perlcompat import die
 
 COLOR_ALIASES = {
     'blue': 'SteelBlue', 'red': 'chocolate1', 'magenta': 'orange', 'cyan':
@@ -67,7 +67,7 @@ def rgb_in_scheme(scheme, p=1):
     elif scheme == 6:  # green-red
         return hsv2rgb(150 + 180 * p, abs(p - .5) * 2, 1.)
     else:
-        cellx.die("rbg_in_scheme: invalid color scheme '{}'".format(scheme))
+        die("rbg_in_scheme: invalid color scheme '{}'".format(scheme))
 
 def load_x11_colors(file='/usr/share/X11/rgb.txt'):
     """Parse X Windows System's color definition and return all colors as a
@@ -87,8 +87,8 @@ def load_x11_colors(file='/usr/share/X11/rgb.txt'):
     return colors
 
 class Palette:
-    def __init__(self, scheme=0):
-        self.scheme = scheme
+    def __init__(self, color_scheme=0):
+        self.color_scheme = color_scheme
         self.palette = {}
 
     def define_color(self, name, r, g, b, a=1):
@@ -127,7 +127,7 @@ class Palette:
             p = level / 100
             q = 1 - p
             self.define_color('gray{}'.format(level), p, p, p)
-            rgb = rgb_in_scheme(self.scheme, p)
+            rgb = rgb_in_scheme(self.color_scheme, p)
             self.define_color('heat{}'.format(level), *rgb)
             self.define_color('cool{}'.format(level), 0, .8 * p,
                               .9 * p + .4 * q)
