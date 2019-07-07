@@ -440,7 +440,8 @@ wait
         color, x and y) are taken from ARGS.  Text alignment can be specified
         with 'l' option (left justified) and 'r' option (right justified)."""
         text, size, color, x, y = get_args(args, ['', 16, 'white', 0.5, 0.5])
-        text = re.sub(r'__', ' ', text)
+        # force text argument to be string
+        text = re.sub(r'__', ' ', str(text))
         self.validate_color(color)
         x, y = self.expand_position(x, y)
         align = 'center'
