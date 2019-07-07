@@ -1,14 +1,27 @@
 #!/usr/bin/env python3
 #
-#
+# Command-driven drawing/visualization/animation/presentation tool.
 # Copyright (c) 2018-2019, Hiroyuki Ohsaki.
 # All rights reserved.
 #
 # $Id: pycell,v 1.6 2018/05/29 05:53:26 ohsaki Exp $
 #
 
-import fileinput
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import os
+import fileinput
 import sys
 
 from perlcompat import die, getopts
@@ -16,15 +29,31 @@ import cellx
 
 def usage():
     die("""\
-usage: {} [-v] [file...]
-  -v    verbose mode
+usage: {} [-v] [-c #] [-M class] [-F rate] [-L rate] [-A alpha] [-m #] [file...]
+  -v        verbose mode
+  -c #      select color scheme
+  -M class  monitor class (default: SDL)
+  -F rate   the number of frames per animation/fading
+  -L rate   limit the frame rate (default: infinity)
+  -A alpha  alpha for filtering effect (0 <= alpha <= 255)
+  -m #  the number of frames to render (default: infinity)
 """.format(sys.argv[0]))
 
 def main():
     opt = getopts('c:M:F:L:A:m:') or usage()
-    mon = cellx.monitor.SDL()
-    cel = cellx.Cell(monitor=mon)
+    color_scheme = int(opt.c) if opt.c else 0
+    monitor_class = opt.M if opt.M else 'SDL'
+    frame_rate = float(opt.F) if opt.F else 30
+    rate_limit = float(opt.L) if opt.L else None
+    alpha = int(opt.A) if opt.A else 64
+
+    cls = eval('cellx.monitor.' + monitor_class)
+    mon = cls(color_scheme=color_scheme, alpha=alpha)
+
+    cel = cellx.Cell(monitor=mon, frame_rate=frame_rate, rate_limit=rate_limit)
+
     parser = cellx.Parser(cell=cel)
+
     for line in fileinput.input():
         line = line.rstrip()
         parser.parse_line(line)
