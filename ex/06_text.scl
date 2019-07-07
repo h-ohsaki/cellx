@@ -1,0 +1,19 @@
+define t1 text Hello__World!
+display
+wait
+
+define t2 text Welcome! 36 cyan 0.25 0.25
+display
+wait
+
+define t3 text Welcome!\\to\\New__World! 20 cyan 0.75 0.75
+display
+wait
+
+define t4 text -l Welcome!\\to\\Another__World! 20 cyan 0.75 0.2
+display
+wait
+
+define t5 text -r Welcome!\\to\\Another__World! 20 red 0.2 0.8
+display
+wait

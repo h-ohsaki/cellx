@@ -1,0 +1,21 @@
+def b1 box 50 20 red
+def b2 box 50 20 green b1-50+0
+def b3 box 50 20 blue b1+50+0
+disp
+wait
+
+shift b2 -50 0
+shift b3 +50 0
+disp
+wait
+
+def p11 box 20 20 red 0.2 0.2
+def p12 box 20 20 green p11+0.02+0
+def p13 box 20 20 blue p11-0.02+0
+disp
+wait
+
+shift p12 0.02 0
+shift p13 -0.02 0
+disp
+wait

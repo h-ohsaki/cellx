@@ -1,0 +1,12 @@
+define b1 box 100 100 blue 0.5 0.5
+define b2 box 100 100 blue 0.75 0.75
+display
+wait
+
+color -- cyan
+display
+wait
+
+color -- green
+display
+wait

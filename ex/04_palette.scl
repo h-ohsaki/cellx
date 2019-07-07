@@ -1,0 +1,5 @@
+palette darkgreen 0.1 0.6 0.1 1
+
+define b1 box 100 100 darkgreen 0.5 0.5
+display
+wait

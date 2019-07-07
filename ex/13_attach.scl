@@ -1,0 +1,18 @@
+define b1 box 50 50 cyan 0.5 0.5
+define b2 box 40 20 blue
+  priority b2 10
+attach b2 b1 25 5
+display
+wait
+
+move b1 0.2 0.2
+display
+wait
+
+shift b1 +50 +10
+display
+wait
+
+animate b1 0.9 0.1
+display
+wait

@@ -1,0 +1,7 @@
+define e1 ellipse 100 60 cyan 0.5 0.5
+display
+wait
+
+define e2 ellipse 0.05 0.05 yellow 0.5 0.5
+display
+wait
