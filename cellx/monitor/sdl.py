@@ -29,8 +29,8 @@ import cellx
 from cellx.monitor.null import Null
 
 class SDL(Null):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *kargs, **kwargs):
+        super().__init__(*kargs, **kwargs)
         self.font_cache = {}
         self.rendered = {}
         self.init()
