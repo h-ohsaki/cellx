@@ -1,11 +1,24 @@
 #!/usr/bin/env python3
 #
 #
-# Copyright (c) 2018, Hiroyuki Ohsaki.
+# Copyright (c) 2018-2019, Hiroyuki Ohsaki.
 # All rights reserved.
 #
 # $Id: sdl_filter.py,v 1.2 2019/03/10 11:50:05 ohsaki Exp ohsaki $
 #
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import math
 import pygame
