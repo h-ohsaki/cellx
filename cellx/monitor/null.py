@@ -28,7 +28,9 @@ class Null:
                  height=600,
                  color_scheme=0,
                  alpha=1,
-                 outfile=None):
+                 outfile=None,
+                 *kargs,
+                 **kwargs):
         self.width = width
         self.height = height
         self.color_scheme = color_scheme
