@@ -33,11 +33,10 @@ class Null:
                  **kwargs):
         self.width = width
         self.height = height
-        self.color_scheme = color_scheme
         self.alpha = alpha
         self.outfile = outfile
 
-        self.palette = cellx.monitor.color.Palette()
+        self.palette = cellx.monitor.color.Palette(color_scheme=color_scheme)
         self.palette.reset()
 
     def render(self, obj):
