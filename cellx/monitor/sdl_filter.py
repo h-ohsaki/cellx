@@ -29,9 +29,9 @@ import cellx
 from cellx.monitor.sdl import SDL
 
 class SDL_Filter(SDL):
-    def __init__(self):
+    def __init__(self, alpha=40, *kargs, **kwargs):
         super().__init__()
-        self.alpha = 40
+        self.alpha = alpha
 
         width, height = self.width, self.height
         self.current_frame = pygame.Surface((width, height), 0, self.hwscreen)
