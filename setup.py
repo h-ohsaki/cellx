@@ -7,11 +7,11 @@ with open('README.md', 'r') as fh:
 
 setuptools.setup(
     name="cellx",
-    version="1.1",
+    version="1.2",
     author="Hiroyuki Ohsaki",
     author_email="ohsaki@lsnl.jp",
     description=
-    "",
+    "command-driven drawing/visualization/animation/presentation tool",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/h-ohsaki/cellx",
