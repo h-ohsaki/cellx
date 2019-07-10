@@ -20,10 +20,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import contextlib
 import math
-import pygame
-import pygame.gfxdraw
-import pygame.transform
+
+with contextlib.redirect_stdout(None):
+    import pygame
+    import pygame.gfxdraw
+    import pygame.transform
 
 import cellx
 from cellx.monitor.null import Null
