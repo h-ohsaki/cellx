@@ -20,7 +20,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import re
+import io
+import sys
 
 from cellx.monitor.null import Null
 
@@ -39,9 +40,11 @@ def sign(x):
 class PostScript(Null):
     def __init__(self, *kargs, **kwargs):
         super().__init__(*kargs, **kwargs)
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='euc-jp')
         print("""\
 %!
-gsave""")
+gsave
+""")
 
     def normalize_position(self, x, y):
         factor = (A4_WIDTH_IN_PIXELS - LEFT_MARGIN - RIGHT_MARGIN) / self.width
@@ -140,15 +143,15 @@ grestore
 
     def _render_polygon(self, obj):
         name = obj.name
-        vertices = obj.vertices
+        vertices = obj.vertices()
         print("""\
 % polygon: {}
 newpath""".format(name))
         v = vertices[0]
         vertices = vertices[1:]
-        print("{} {} moveto".format(self.normalize_position(*v)))
+        print("{} {} moveto".format(*self.normalize_position(*v)))
         for x, y in vertices:
-            print("{} {} lineto".format(self.normalize_position(x, y)))
+            print("{} {} lineto".format(*self.normalize_position(x, y)))
 
         print("closepath")
         self._render_fill(obj)
@@ -194,7 +197,7 @@ grestore""".format(x, y, x, y, x2, y2, x3, y3, gray, width))
         name = obj.name
         font = 'Helvetica'
         # use Japanese font if any non-ascii character is contained
-        if re.search(r'[\x80-\xff]', obj.text):
+        if not obj.text.isascii():
             font = 'GothicBBB-Medium-EUC-H'
         x, y = self.normalize_position(obj.x, obj.y)
         size = self.normalize_size(obj.size)
