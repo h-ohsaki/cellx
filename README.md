@@ -32,6 +32,14 @@ cellx - command-driven drawing/visualization/animation/presentation tool
 
 ![screenshot](https://raw.githubusercontent.com/h-ohsaki/cellx/master/screenshot/pwsnsim.png)
 
+- Circuit-switching illustration (converted from PostScript)
+
+![screenshot](https://raw.githubusercontent.com/h-ohsaki/cellx/master/screenshot/circuit-switching.png)
+
+- M/M/1 queue illustration (converted from PostScript)
+
+![screenshot](https://raw.githubusercontent.com/h-ohsaki/cellx/master/screenshot/queue.png)
+
 # DESCRIPTION
 
 This manual page documents **cellx**, a one-pass interpreter of the CELL
@@ -39,7 +47,7 @@ language.  CELL language is a simple line-oriented language for dynamic
 graphics drawing.  **cellx** reads a source code written in the CELL language
 from the standard input or specified files.  Every line in the source code is
 parsed and interpreted.  The output is drawn on a window using SDL library via
-**pygame** module.
+**pygame** module or sent to the standard output in the PostScript format.
 
 # CELL LANGUAGE COMMANDS
 
@@ -141,7 +149,8 @@ The latest version of **cellx** is available at PyPI
 
 # SEE ALSO
 
-cell - CELL language interpreter for visualization using SDL/OpenGL/PostScript/AVI/PDF (http://www.lsnl.jp/~ohsaki/software/cell)
+cell - CELL language interpreter for visualization using
+SDL/OpenGL/PostScript/AVI/PDF (http://www.lsnl.jp/~ohsaki/software/cell)
 
 # AUTHOR
 
