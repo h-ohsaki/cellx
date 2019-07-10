@@ -21,7 +21,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import io
+import re
 import sys
+import copy
 
 from cellx.monitor.null import Null
 
@@ -39,6 +41,7 @@ def sign(x):
 
 class PostScript(Null):
     def __init__(self, *kargs, **kwargs):
+
         super().__init__(*kargs, **kwargs)
         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='euc-jp')
         print("""\
@@ -193,9 +196,34 @@ gsave
   {} setlinewidth stroke
 grestore""".format(x, y, x, y, x2, y2, x3, y3, gray, width))
 
+    def is_tex_style_text(self, text):
+        return re.search(r'^\$(.+)\$$', text)
+
+    def expand_tex_like_text(self, obj):
+        obj.text = obj.text.replace('$', '')
+        font = 'Helvetica-Oblique'
+        if '\\' in obj.text:
+            font = 'Symbol'
+            obj.text = obj.text.replace('\\', '')
+        # subscript and superscript
+        for regexp in [ r'_(.+)', r'\^(.+)']:
+            m = re.search(regexp, obj.text)
+            if not m:
+                continue
+            obj.text = re.sub(regexp, '', obj.text)
+            sub = copy.copy(obj)
+            sub.text = '$' + m.group(1) + '$'
+            sub.size *= 1/2
+            sub.x += obj.size/2
+            sub.y += sub.size / 4 if '_' in regexp else \
+                     -sub.size
+            self._render_text(sub)
+        return font
+
     def _render_text(self, obj):
         name = obj.name
-        font = 'Helvetica'
+        font = self.expand_tex_like_text(obj) if self.is_tex_style_text(obj.text) \
+               else 'Helvetica'
         # use Japanese font if any non-ascii character is contained
         if not obj.text.isascii():
             font = 'GothicBBB-Medium-EUC-H'
