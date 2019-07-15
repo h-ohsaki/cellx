@@ -30,12 +30,14 @@ with contextlib.redirect_stdout(None):
 
 import cellx
 from cellx.monitor.null import Null
+from perlcompat import warn
 
 class SDL(Null):
     def __init__(self, *kargs, **kwargs):
         super().__init__(*kargs, **kwargs)
         self.font_cache = {}
         self.rendered = {}
+        self.enable_sound = False
         self.init()
 
     def init(self):
@@ -44,7 +46,12 @@ class SDL(Null):
         width, height = self.width, self.height
         self.hwscreen = pygame.display.set_mode((width, height))
         self.fixed_surface = pygame.Surface((width, height), 0, self.hwscreen)
-        pygame.mixer.init()
+        try:
+            pygame.mixer.init()
+            self.enable_sound = True
+        except pygame.error:
+            warn(
+                'failed to initialize sound mixer.  continue without sound...')
 
     def draw_line(self, sx, sy, dx, dy, width, color, alpha):
         theta = math.atan2(dy - sy, dx - sx)
@@ -204,6 +211,15 @@ class SDL(Null):
 
     def display(self):
         pygame.display.update()
+        event = pygame.event.poll()
+        if event == pygame.NOEVENT:
+            return
+        if event.type == pygame.KEYDOWN:
+            key = event.key
+            if key == pygame.K_q or key == pygame.K_ESCAPE:
+                exit()
+            else:
+                self.wait()
 
     def wait(self):
         while True:
@@ -212,9 +228,13 @@ class SDL(Null):
                 key = event.key
                 if key == pygame.K_SPACE:
                     break
-                if key == pygame.K_q:
+                elif key == pygame.K_q or key == pygame.K_ESCAPE:
                     exit()
 
     def play(self, file):
+        if not self.enable_sound:
+            warn(
+                "cannot play '{}' since sound mixer is disabled.".format(file))
+            return
         sound = pygame.mixer.Sound(file)
         sound.play()
