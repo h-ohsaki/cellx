@@ -76,7 +76,7 @@ fix (name|regexp)...
 hide (name|regexp)...
 kill (name|regexp)...
 move (name|regexp) (x y|name[(+|-)dx(+|-)dy])
-palette symbol r g b [alpha]
+palette symbol (r g b [alpha]|name [alpha])
 play file
 priority (name|regexp) level
 resize (name|regexp) (x y|name[(+|-)dx(+|-)dy])
@@ -551,6 +551,28 @@ wait
                 x2, y2 = self.expand_position(x2, y2)
             self.cell.spring(x1, y1, x2, y2, args, opts)
 
+        def _parse_palette(self, args):
+            """Parse arguments ARGS for palette command.  ARGS can be:
+            NAME RED GREEN BLUE
+            NAME RED GREEN BLUE ALPHA
+            NAME SRC_NAME
+            NAME SRC_NAME ALPHA"""
+            palette = self.cell.monitor.palette
+            if len(args) == 2:
+                name, src_name = args
+                palette.define_color(name, *palette.rgba(src_name))
+            elif len(args) == 3:
+                name, src_name, alpha = self.expand_palette(args)
+                palette.define_color(name, *palette.rgb(src_name), a=alpha)
+            elif len(args) == 4:
+                name, r, g, b = self.expand_palette(args)
+                palette.define_color(name, r, g, b)
+            elif len(args) == 5:
+                name, r, g, b, a = self.expand_palette(args)
+                palette.define_color(name, r, g, b, a)
+            else:
+                die("invalid palette arguments: {}".format(args))
+
         # remove comment
         line = re.sub(r'^#.*', '', line)
         # remove indentation
@@ -604,9 +626,7 @@ wait
             for n in self.expand_name(name):
                 self.cell.object(n).move(x, y)
         elif cmd.startswith('pa'):  # palette
-            color = args.pop(0)
-            r, g, b, a = self.expand_palette(args)
-            self.cell.monitor.palette.define_color(color, r, g, b, a)
+            _parse_palette(self, args)
         elif cmd.startswith('pl'):  # play
             file = args.pop(0)
             if not os.path.exists(file):
