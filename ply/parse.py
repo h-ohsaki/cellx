@@ -15,26 +15,22 @@ import subprocess
 import sys
 
 from perlcompat import die, warn, getopts
-#import tbdump
+import tbdump
 
 import ply.lex as lex
-
-# display
-# wait
-# define name box [-f color] [width height color (x y|name[(+|-)dx(+|-)dy])]
 
 keywords = ('DISPLAY', 'DEFINE', 'BOX')
 
 tokens = keywords + (
-   'PLUS',
-   'MINUS',
-   'ID',
-   'INTEGER',
-   'STRING',
-   'NEWLINE',
+    'PLUS',
+    'MINUS',
+    'ID',
+    'INTEGER',
+    'STRING',
+    'NEWLINE',
 )
 
-t_ignore  = ' \t'
+t_ignore = ' \t'
 
 t_PLUS = r'\+'
 t_MINUS = r'\-'
@@ -58,44 +54,27 @@ def t_error(t):
 
 lexer = lex.lex()
 
-
-# ----------------------------------------------------------------
-"""
-define foo box (32 + 45) 16 
-
-
-statements := single_statement*
-
-single_statement := define_statement
-                  | wait_statement
-
-define_statement := 'define' name boxspec
-
-boxspec := 'box' size_spec_opt color_spec_opt pos_spec_opt
-
-"""
+def p_statements(p):
+    """
+    statements : statement
+               | statements statement"""
 
 def p_statement_display(p):
     "statement : DISPLAY NEWLINE"
     pass
 
 def p_statement_define(p):
-    "statement : DEFINE ID BOX box_spec NEWLINE"
+    "statement : DEFINE ID BOX INTEGER INTEGER NEWLINE"
     pass
 
-def p_box_spec(p):
-    "box_spec : dimension dimension"
-    pass
-
-def p_dimension(p):
-    "dimension : INTEGER"
-    pass
+def p_error(p):
+    raise
 
 import ply.yacc as yacc
 yacc.yacc()
 
-s = """display
-define foo box 100 100
+s = """define foo box 100 100
+display
 """
 
 # lexer.input(s)
