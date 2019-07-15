@@ -107,11 +107,9 @@ class Palette:
 
     def rgba(self, name, alpha=1.):
         """Return R, G, B, and A values of color NAME as a tuple.  If ALPHA is
-        specified, alpha channel (A value) is multiplied by ALPHA."""
-        try:
-            r, g, b, a = self.palette[name]
-        except KeyError:
-            return None
+        specified, alpha channel (A value) is multiplied (not overwritten) by
+        ALPHA."""
+        r, g, b, a = self.palette[name]
         return r, g, b, a * alpha
 
     def rgb(self, name):
