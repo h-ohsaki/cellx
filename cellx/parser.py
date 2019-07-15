@@ -560,9 +560,11 @@ wait
             palette = self.cell.monitor.palette
             if len(args) == 2:
                 name, src_name = args
+                self.validate_color(src_name)
                 palette.define_color(name, *palette.rgba(src_name))
             elif len(args) == 3:
                 name, src_name, alpha = self.expand_palette(args)
+                self.validate_color(src_name)
                 palette.define_color(name, *palette.rgb(src_name), a=alpha)
             elif len(args) == 4:
                 name, r, g, b = self.expand_palette(args)
