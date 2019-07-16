@@ -21,21 +21,29 @@ import sys
 from plyplus import Grammar
 list_parser = Grammar(r"""
 start : (command eol)* ; 
-command : alpha_command | animate_command | color_command | 'display' | define_command ;
+command : alpha_command | animate_command | color_command | 'display' | define_command | kill_command | spring_command | 'wait';
 
 alpha_command: 'alpha' pattern number;
 animate_command: 'animate' geometry;
 color_command: 'color' pattern color;
 
 define_command: box_command ;
-box_command : 'define' name 'box' number number (color)? (geometry)?;
+box_command : 'define' name 'box' number number (color)? (geometry)? (option)*;
+kill_command: 'kill' pattern ;
 
-pattern: name | regexp ;
+sleep_command: 'sleep' number;
+
+spring_command: 'spring' pattern (number number number number)? (option)*;
+
+pattern: name (name)* | regexp ;
+
+option: '-' name;
 
 geometry : number number | name (offset)?;
 offset : '\+' number '-' number ;
 
-color: name | '\#[\da-f]{6,8}'; 
+color: simple_color ('\*' number)?;
+simple_color: name | '\#[\da-f]{6,8}' | number ',' number ',' number (',' number)? | name '\*' number; 
 
 name : '\w+' ;
 number : '[\d\.]+' ;
@@ -47,14 +55,7 @@ SPACES : ' +' (%ignore) ;
 """)
 
 r=list_parser.parse("""\
-color b4 red
-color b4 #123456
-color b4 #12345678
-alpha r'^b' .4
-display
-define foo box 100 .4 white b1
-define foo box 100 .4 white b1+4-20
-define foo box 100 .4 white 124 333
+define b1 box 100 100 cyan
 """)
 print(r)
 
