@@ -28,7 +28,8 @@ animate_command: 'animate' geometry;
 color_command: 'color' pattern color;
 
 define_command: box_command ;
-box_command : 'define' name 'box' number number (color)? (geometry)? (option)*;
+// box_command : 'define' name 'box' number number (color)? (geometry)? (option)*;
+box_command : 'define' name 'box' number number color;
 kill_command: 'kill' pattern ;
 
 sleep_command: 'sleep' number;
@@ -45,7 +46,7 @@ offset : '\+' number '-' number ;
 color: simple_color ('\*' number)?;
 simple_color: name | '\#[\da-f]{6,8}' | number ',' number ',' number (',' number)? | name '\*' number; 
 
-name : '\w+' ;
+name : '[A-Za-z][0-9A-Za-z]*' ;
 number : '[\d\.]+' ;
 
 regexp: 'r\'.+?\'' ;
@@ -54,8 +55,7 @@ eol : '\n' ;
 SPACES : ' +' (%ignore) ;
 """)
 
-r=list_parser.parse("""\
-define b1 box 100 100 cyan
+r=list_parser.parse("""define b1 box 100 100 cyan
 """)
 print(r)
 
