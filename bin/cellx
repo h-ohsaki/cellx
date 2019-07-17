@@ -32,7 +32,7 @@ def usage():
 usage: {} [-v] [-c #] [-M class] [-F rate] [-L rate] [-A alpha] [-m #] [file...]
   -v        verbose mode
   -c #      select color scheme
-  -M class  monitor class (default: SDL)
+  -M class  monitor class (Null/SDL/SDL_Filter/PostScript) (default: SDL)
   -F rate   the number of frames per animation/fading
   -L rate   limit the frame rate (default: infinity)
   -A alpha  alpha for filtering effect (0 <= alpha <= 255)
