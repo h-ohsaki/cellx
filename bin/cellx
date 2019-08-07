@@ -22,6 +22,7 @@
 
 import os
 import fileinput
+import subprocess
 import sys
 
 from perlcompat import die, getopts
@@ -29,8 +30,9 @@ import cellx
 
 def usage():
     die("""\
-usage: {} [-v] [-c #] [-M class] [-F rate] [-L rate] [-A alpha] [-m #] [file...]
+usage: {} [-v] [-N] [-c #] [-M class] [-F rate] [-L rate] [-A alpha] [-m #] [file...]
   -v        verbose mode
+  -N        disable macro expansion with cpp
   -c #      select color scheme
   -M class  monitor class (default: SDL)
   -F rate   the number of frames per animation/fading
@@ -40,7 +42,8 @@ usage: {} [-v] [-c #] [-M class] [-F rate] [-L rate] [-A alpha] [-m #] [file...]
 """.format(sys.argv[0]))
 
 def main():
-    opt = getopts('c:M:F:L:A:m:') or usage()
+    opt = getopts('Nc:M:F:L:A:m:') or usage()
+    pre_processor = 'cpp' if not opt.N else 'cat'
     color_scheme = int(opt.c) if opt.c else 0
     monitor_class = opt.M if opt.M else 'SDL'
     frame_rate = float(opt.F) if opt.F else 30
@@ -54,7 +57,11 @@ def main():
 
     parser = cellx.Parser(cell=cel)
 
-    for line in fileinput.input():
+    proc = subprocess.Popen([pre_processor], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    input = ''.join(list(fileinput.input()))
+    output = proc.communicate(input.encode())[0]
+
+    for line in output.decode().split("\n"):
         line = line.rstrip()
         parser.parse_line(line)
 
