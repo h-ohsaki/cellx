@@ -129,8 +129,7 @@ class SDL(Null):
     def _render_text(self, obj):
         if not obj._text_cache:
             if not self.font_cache.get(obj.size, None):
-                font = pygame.font.Font(
-                    '/etc/alternatives/fonts-japanese-gothic.ttf', obj.size)
+                font = pygame.font.SysFont('Helvetica', obj.size)
                 if not font:
                     cellx.die('pygame.font.SysFont() failed.')
                 self.font_cache[obj.size] = font
