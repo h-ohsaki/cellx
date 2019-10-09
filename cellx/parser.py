@@ -271,6 +271,8 @@ wait
         """Createa a box object with name NAME.  Parameters (width, height,
         color, x, and y) are taken from ARGS.  Frame color can be specified
         with 'f' option (e.g., opts = { 'f': 'cyan'})."""
+        if opts is None:
+            opts = {}
         width, height, color, x, y = get_args(args,
                                               [10, 10, 'white', 0.5, 0.5])
         width, height = self.expand_position(width, height)
@@ -500,80 +502,80 @@ wait
                                    color)
         return obj
 
+    def _parse_define(self, args):
+        """Parse arguments ARGS for define command."""
+        name, atype, *args = args
+        name = self.expand_name(name, allow_create=True)[0]
+        atype = atype.lower()
+        if atype.startswith('bi'):  # bitmap
+            self.define_bitmap(name, args)
+        elif atype.startswith('bo'):  # box
+            opts = self.parse_options('f:', args)
+            self.define_box(name, args, opts)
+        elif atype.startswith('e'):  # ellipse
+            opts = self.parse_options('f:', args)
+            self.define_ellipse(name, args, opts)
+        elif atype.startswith('line'):  # line
+            opts = self.parse_options('ht', args)
+            self.define_line(name, args, opts)
+        elif atype.startswith('link'):  # link
+            self.define_link(name, args)
+        elif atype.startswith('p'):  # polygon
+            opts = self.parse_options('r:f:', args)
+            self.define_polygon(name, args, opts)
+        elif atype.startswith('s'):  # spline
+            opts = self.parse_options('ht', args)
+            self.define_spline(name, args, opts)
+        elif atype.startswith('t'):  # text
+            opts = self.parse_options('lcr', args)
+            self.define_text(name, args, opts)
+        elif atype.startswith('w'):  # wire
+            opts = self.parse_options('ht', args)
+            self.define_wire(name, args, opts)
+        else:
+            self.abort("unknown object type '{}' in define.".format(atype))
+
+    def _parse_spring(self, args):
+        """Parse arguments ARGS for spring command."""
+        opts = self.parse_options('f:r:', args)
+        x1, y1 = self.cell.width * .05, self.cell.height * .05
+        x2, y2 = self.cell.width * .95, self.cell.height * .95
+        args = self.expand_names(*args)
+        if len(args) > 4 and re.match(r'[+-]?[\d.]+', args[-3]) \
+            and re.match(r'[+-]?[\d.]+', args[-1]):
+            x1, y1, x2, y2 = args[-4:]
+            del args[-4:]
+            x1, y1 = self.expand_position(x1, y1)
+            x2, y2 = self.expand_position(x2, y2)
+        self.cell.spring(x1, y1, x2, y2, args, opts)
+
+    def _parse_palette(self, args):
+        """Parse arguments ARGS for palette command.  ARGS can be:
+        NAME RED GREEN BLUE
+        NAME RED GREEN BLUE ALPHA
+        NAME SRC_NAME
+        NAME SRC_NAME ALPHA"""
+        palette = self.cell.monitor.palette
+        if len(args) == 2:
+            name, src_name = args
+            self.validate_color(src_name)
+            palette.define_color(name, *palette.rgba(src_name))
+        elif len(args) == 3:
+            name, src_name, alpha = self.expand_palette(args)
+            self.validate_color(src_name)
+            palette.define_color(name, *palette.rgb(src_name), a=alpha)
+        elif len(args) == 4:
+            name, r, g, b = self.expand_palette(args)
+            palette.define_color(name, r, g, b)
+        elif len(args) == 5:
+            name, r, g, b, a = self.expand_palette(args)
+            palette.define_color(name, r, g, b, a)
+        else:
+            die("invalid palette arguments: {}".format(args))
+
     def parse_single_line(self, line):
         """Parse a sing line LINE, which can be either a simple statement, a
         comment, or a blank line."""
-
-        def _parse_define(self, args):
-            """Parse arguments ARGS for define command."""
-            name, atype, *args = args
-            name = self.expand_name(name, allow_create=True)[0]
-            atype = atype.lower()
-            if atype.startswith('bi'):  # bitmap
-                self.define_bitmap(name, args)
-            elif atype.startswith('bo'):  # box
-                opts = self.parse_options('f:', args)
-                self.define_box(name, args, opts)
-            elif atype.startswith('e'):  # ellipse
-                opts = self.parse_options('f:', args)
-                self.define_ellipse(name, args, opts)
-            elif atype.startswith('line'):  # line
-                opts = self.parse_options('ht', args)
-                self.define_line(name, args, opts)
-            elif atype.startswith('link'):  # link
-                self.define_link(name, args)
-            elif atype.startswith('p'):  # polygon
-                opts = self.parse_options('r:f:', args)
-                self.define_polygon(name, args, opts)
-            elif atype.startswith('s'):  # spline
-                opts = self.parse_options('ht', args)
-                self.define_spline(name, args, opts)
-            elif atype.startswith('t'):  # text
-                opts = self.parse_options('lcr', args)
-                self.define_text(name, args, opts)
-            elif atype.startswith('w'):  # wire
-                opts = self.parse_options('ht', args)
-                self.define_wire(name, args, opts)
-            else:
-                self.abort("unknown object type '{}' in define.".format(atype))
-
-        def _parse_spring(self, args):
-            """Parse arguments ARGS for spring command."""
-            opts = self.parse_options('f:r:', args)
-            x1, y1 = self.cell.width * .05, self.cell.height * .05
-            x2, y2 = self.cell.width * .95, self.cell.height * .95
-            args = self.expand_names(*args)
-            if len(args) > 4 and re.match(r'[+-]?[\d.]+', args[-3]) \
-                and re.match(r'[+-]?[\d.]+', args[-1]):
-                x1, y1, x2, y2 = args[-4:]
-                del args[-4:]
-                x1, y1 = self.expand_position(x1, y1)
-                x2, y2 = self.expand_position(x2, y2)
-            self.cell.spring(x1, y1, x2, y2, args, opts)
-
-        def _parse_palette(self, args):
-            """Parse arguments ARGS for palette command.  ARGS can be:
-            NAME RED GREEN BLUE
-            NAME RED GREEN BLUE ALPHA
-            NAME SRC_NAME
-            NAME SRC_NAME ALPHA"""
-            palette = self.cell.monitor.palette
-            if len(args) == 2:
-                name, src_name = args
-                self.validate_color(src_name)
-                palette.define_color(name, *palette.rgba(src_name))
-            elif len(args) == 3:
-                name, src_name, alpha = self.expand_palette(args)
-                self.validate_color(src_name)
-                palette.define_color(name, *palette.rgb(src_name), a=alpha)
-            elif len(args) == 4:
-                name, r, g, b = self.expand_palette(args)
-                palette.define_color(name, r, g, b)
-            elif len(args) == 5:
-                name, r, g, b, a = self.expand_palette(args)
-                palette.define_color(name, r, g, b, a)
-            else:
-                die("invalid palette arguments: {}".format(args))
 
         # remove comment
         line = re.sub(r'^#.*', '', line)
@@ -607,7 +609,7 @@ wait
             for n in self.expand_name(name):
                 self.cell.object(n).color = color
         elif cmd.startswith('de'):  # define
-            _parse_define(self, args)
+            self._parse_define(args)
         elif cmd.startswith('di'):  # display
             self.cell.display()
         elif cmd.startswith('fa'):  # fade
@@ -628,7 +630,7 @@ wait
             for n in self.expand_name(name):
                 self.cell.object(n).move(x, y)
         elif cmd.startswith('pa'):  # palette
-            _parse_palette(self, args)
+            self._parse_palette(args)
         elif cmd.startswith('pl'):  # play
             file = args.pop(0)
             if not os.path.exists(file):
@@ -656,7 +658,7 @@ wait
             secs = args.pop(0)
             time.sleep(secs)
         elif cmd.startswith('sp'):  # spring
-            _parse_spring(self, args)
+            self._parse_spring(args)
         elif cmd.startswith('u'):  # unhide
             for n in self.expand_names(*args):
                 self.cell.object(n).visible = True
