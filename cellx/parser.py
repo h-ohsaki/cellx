@@ -80,7 +80,6 @@ palette symbol (r g b [alpha]|name [alpha])
 play file
 priority (name|regexp) level
 resize (name|regexp) (x y|name[(+|-)dx(+|-)dy])
-scale (name|regexp) ratio
 shift (name|regexp) dx dy
 sleep x
 spring [-f filter] [-r degree] (name|regexp)... [x1 y1 x2 y2]
@@ -645,10 +644,6 @@ wait
             w, h = self.expand_position(*args)
             for n in self.expand_name(name):
                 self.cell.object(n).resize(w, h)
-        elif cmd.startswith('sc'):  # scale
-            name, ratio = args
-            for n in self.expand_name(name):
-                self.cell.object(n).scale = ratio
         elif cmd.startswith('sh'):  # shift
             name, dx, dy = args
             dx, dy = self.expand_position(dx, dy)
