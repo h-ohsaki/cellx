@@ -47,6 +47,7 @@ def read_via_cpp(parser):
     filter = subprocess.Popen(['cpp'],
                               stdin=subprocess.PIPE,
                               stdout=subprocess.PIPE)
+
     def reader():
         for line in filter.stdout:
             line = line.decode().rstrip()
