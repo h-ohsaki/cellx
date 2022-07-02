@@ -1,3 +1,5 @@
+https://github.com/h-ohsaki/asm-book
+
 # NAME
 
 cellx - command-driven drawing/visualization/animation/presentation tool
@@ -71,7 +73,7 @@ fix (name|regexp)...
 hide (name|regexp)...
 kill (name|regexp)...
 move (name|regexp) (x y|name[(+|-)dx(+|-)dy])
-palette symbol r g b [alpha]
+palette symbol (r g b [alpha]|name [alpha])
 play file
 priority (name|regexp) level
 resize (name|regexp) (x y|name[(+|-)dx(+|-)dy])
