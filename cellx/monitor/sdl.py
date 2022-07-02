@@ -97,7 +97,10 @@ class SDL(Null):
                            obj.height)
         color = self.palette.rgba(obj.color, obj.alpha)
         pygame.gfxdraw.box(self.screen, rect, color)
-
+        if obj.frame_color:
+            color = self.palette.rgba(obj.frame_color, obj.alpha)
+            pygame.gfxdraw.rectangle(self.screen, rect, color)
+            
     def _render_ellipse(self, obj):
         color = self.palette.rgba(obj.color, obj.alpha)
         rx, ry = int(obj.width / 2), int(obj.height / 2)
