@@ -22,6 +22,8 @@
 
 import io
 import sys
+import re
+import copy
 
 from cellx.monitor.null import Null
 
@@ -193,9 +195,35 @@ gsave
   {} setlinewidth stroke
 grestore""".format(x, y, x, y, x2, y2, x3, y3, gray, width))
 
+    def is_tex_style_text(self, text):
+        return re.search(r'^\$(.+)\$$', text)
+
+    def expand_tex_style_text(self, obj):
+        obj.text = obj.text.replace('$', '')
+        font = 'Helvetica-Oblique'
+        if '\\' in obj.text:
+            font = 'Symbol'
+            obj.text = obj.text.replace('\\', '')
+        # subscript and superscript
+        for atype, regexp in { 'sub': r'_([^^\.]+)',
+                               'super': r'\^(.+)'}.items():
+            m = re.search(regexp, obj.text)
+            if not m:
+                continue
+            obj.text = re.sub(regexp, '', obj.text)
+            sub = copy.copy(obj)
+            sub.text = '$' + m.group(1) + '$'
+            sub.size *= 1/2
+            sub.x += obj.size/2
+            sub.y += sub.size / 4 if atype == 'sub' else \
+                     -sub.size
+            self._render_text(sub)
+        return font
+
     def _render_text(self, obj):
         name = obj.name
-        font = 'Helvetica'
+        font = self.expand_tex_style_text(obj) if self.is_tex_style_text(obj.text) \
+               else 'Helvetica'
         # use Japanese font if any non-ascii character is contained
         if not obj.text.isascii():
             font = 'GothicBBB-Medium-EUC-H'
