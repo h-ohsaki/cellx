@@ -591,7 +591,7 @@ wait
         if cmd.startswith('al'):  # alpha
             name, alpha = args
             for n in self.expand_name(name):
-                self.cell.object(n).alpha(alpha)
+                self.cell.object(n).alpha = float(alpha)
         elif cmd.startswith('an'):  # animate
             name = args.pop(0)
             x, y = self.expand_position(*args)
