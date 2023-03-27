@@ -35,6 +35,7 @@ from perlcompat import warn
 class SDL(Null):
     def __init__(self, *kargs, **kwargs):
         super().__init__(*kargs, **kwargs)
+        self.pause = False
         self.font_cache = {}
         self.rendered = {}
         self.enable_sound = False
@@ -211,27 +212,30 @@ class SDL(Null):
             if not obj.fixed:
                 self.render(obj)
 
-    def display(self):
-        pygame.display.update()
-        event = pygame.event.poll()
-        if event == pygame.NOEVENT:
-            return
-        if event.type == pygame.KEYDOWN:
-            key = event.key
-            if key == pygame.K_q or key == pygame.K_ESCAPE:
-                exit()
-            else:
-                self.wait()
-
-    def wait(self):
+    def _process_events(self):
         while True:
-            event = pygame.event.wait()
+            event = pygame.event.poll()
+            if event.type == pygame.NOEVENT:
+                if not self.pause:
+                    return
+                else:
+                    continue
             if event.type == pygame.KEYDOWN:
                 key = event.key
-                if key == pygame.K_SPACE:
-                    break
-                elif key == pygame.K_q or key == pygame.K_ESCAPE:
+                if key == pygame.K_q or key == pygame.K_ESCAPE:
                     exit()
+                if key == pygame.K_SPACE:
+                    self.pause = not self.pause
+            if event.type == pygame.VIDEOEXPOSE:
+                pygame.display.update()
+
+    def display(self):
+        pygame.display.update()
+        self._process_events()
+
+    def wait(self):
+        self.pause = True
+        self._process_events()
 
     def play(self, file):
         if not self.enable_sound:
