@@ -24,6 +24,7 @@
 # FIXME: Support fixed objects.
 
 import math
+import random
 
 from cellx.monitor.sdl import SDL
 import OpenGL.GL as gl
@@ -51,11 +52,7 @@ class OpenGL(SDL):
         self.hwscreen = pygame.display.set_mode(
             (width, height), pygame.OPENGL | pygame.DOUBLEBUF)
         glut.glutInit()
-
         gl.glShadeModel(gl.GL_SMOOTH)
-        # FIXME: Not supported?
-        # gl.glShadeModel(gl.GL_LINE_SMOOTH)
-
         gl.glPixelStorei(gl.GL_UNPACK_ALIGNMENT, 1)
 
         # Enable alpha-blending.
@@ -74,11 +71,11 @@ class OpenGL(SDL):
         gl.glMaterial(gl.GL_FRONT, gl.GL_AMBIENT, (.8, .0, .2, 1.))
         gl.glMaterial(gl.GL_FRONT, gl.GL_DIFFUSE, (1., 1., 1., 1.))
         gl.glMaterial(gl.GL_FRONT, gl.GL_SPECULAR, (.4, .4, .4, 1.))
-        gl.glMaterialf(gl.GL_FRONT, gl.GL_SHININESS, 100)
+        gl.glMaterialf(gl.GL_FRONT, gl.GL_SHININESS, 80)
 
-        gl.glLight(gl.GL_LIGHT0, gl.GL_POSITION, (-80, 80, -50, 1))
-        gl.glLight(gl.GL_LIGHT0, gl.GL_AMBIENT, (1, 1, 1, 1))
-        gl.glLight(gl.GL_LIGHT0, gl.GL_DIFFUSE, (.2, .7, .7, 1))
+        gl.glLight(gl.GL_LIGHT0, gl.GL_POSITION, (-100, 100, 100, 0))
+        gl.glLight(gl.GL_LIGHT0, gl.GL_AMBIENT, (.1, .1, .1, 1))
+        gl.glLight(gl.GL_LIGHT0, gl.GL_DIFFUSE, (.7, .7, .7, 1))
         gl.glLight(gl.GL_LIGHT0, gl.GL_SPECULAR, (1, 1, 1, 1))
 
     def normalize_position(self, x, y):
@@ -114,13 +111,11 @@ class OpenGL(SDL):
             angle = math.degrees(math.atan2(dy - sy, dx - sx))
             gl.glRotatef(angle, 0, 0, 1)
             l = math.sqrt((dx - sx)**2 + (dy - sy)**2)
-            # Rotate 45 degrees for better visibility.
-            gl.glRotatef(45, 1, 0, 0)
+            # Randomly rotate for better visibility.
+            gl.glRotatef(180 * sx, 1, 0, 0)
             gl.glScalef(l, w, w)
             gl.glTranslatef(.5, 0, 0)
-            gl.glMaterial(gl.GL_FRONT, gl.GL_EMISSION, (.2, .2, 0, 1))
             glut.glutSolidCube(1)
-            gl.glMaterial(gl.GL_FRONT, gl.GL_EMISSION, (0, 0, 0, 1))
             gl.glPopMatrix()
 
     def _render_box(self, obj):
@@ -132,9 +127,7 @@ class OpenGL(SDL):
         gl.glPushMatrix()
         gl.glTranslatef(x, y, z)
         gl.glScalef(w, h, (w + h) / 2)
-        gl.glMaterial(gl.GL_FRONT, gl.GL_EMISSION, (.2, .2, 0, 1))
         glut.glutSolidCube(1)
-        gl.glMaterial(gl.GL_FRONT, gl.GL_EMISSION, (0, 0, 0, 1))
         gl.glPopMatrix()
 
     def _render_ellipse(self, obj):
