@@ -41,6 +41,45 @@ class OpenGL(SDL):
             (width, height), pygame.OPENGL | pygame.DOUBLEBUF)
         glut.glutInit()
 
+        # Initialize projection and model view matrices.
+        gl.glMatrixMode(gl.GL_PROJECTION)
+        gl.glLoadIdentity()
+        gl.glOrtho(-.5, .5, -.5, .5, -100, 100)
+        gl.glMatrixMode(gl.GL_MODELVIEW)
+
+        gl.glShadeModel(gl.GL_SMOOTH)
+        # gl.glShadeModel(gl.GL_LINE_SMOOTH)
+
+        gl.glPixelStorei(gl.GL_UNPACK_ALIGNMENT, 1)
+
+        # Enable alpha-blending.
+        gl.glEnable(gl.GL_BLEND)
+        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+
+        # Enable lighting.
+        gl.glEnable(gl.GL_LIGHTING)
+        gl.glEnable(gl.GL_LIGHT0)
+        gl.glDepthFunc(gl.GL_LESS)
+        gl.glEnable(gl.GL_DEPTH_TEST)
+        gl.glEnable(gl.GL_NORMALIZE)
+        gl.glEnable(gl.GL_COLOR_MATERIAL)
+
+        # Configure lights.
+        mat_specular = (1, 1, 0, 1)
+        mat_diffuse = (0, 1, 1, 1)
+        light_position = (-.25, .25, .5, 0)
+        gl.glMaterialfv(gl.GL_FRONT, gl.GL_SPECULAR,
+                        struct.pack('4f', *mat_specular))
+        gl.glMaterialfv(gl.GL_FRONT, gl.GL_DIFFUSE,
+                        struct.pack('4f', *mat_diffuse))
+        gl.glMaterialf(gl.GL_FRONT, gl.GL_SHININESS, 50)
+        gl.glLightfv(gl.GL_LIGHT0, gl.GL_POSITION,
+                     struct.pack('4f', *light_position))
+        gl.glLightfv(gl.GL_LIGHT0, gl.GL_AMBIENT,
+                     struct.pack('4f', .3, .3, .3, 1))
+        gl.glLightModelfv(gl.GL_LIGHT_MODEL_AMBIENT,
+                          struct.pack('4f', .3, .3, .3, 1))
+
     def normalize_position(self, x, y):
         return (x - self.width / 2) / self.width, (
             y - self.height / 2) / self.height
