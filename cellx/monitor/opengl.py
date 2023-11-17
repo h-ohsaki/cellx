@@ -18,11 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import math
-import struct
-
 import OpenGL.GL as gl
-import OpenGL.GLU as glu
 import OpenGL.GLUT as glut
 import cellx
 import pygame
@@ -39,6 +35,7 @@ class OpenGL(SDL):
         self.rot_y = 0.
         self.rot_z = 0.
         self.last_button = None
+        self.texture_id = None
         super().__init__(*kargs, **kwargs)
 
     def init(self):
@@ -79,6 +76,8 @@ class OpenGL(SDL):
         # FIXME: Not supported?
         # gl.glLightModel(gl.GL_LIGHT_MODEL_AMBIENT, (.3, .3, .3, 1))
 
+        self.texture_id = gl.glGenTextures(1)
+
     def normalize_position(self, x, y):
         return (x - self.width / 2) / self.width, (
             y - self.height / 2) / self.height
@@ -88,6 +87,22 @@ class OpenGL(SDL):
 
     def relative_position(self, x, y):
         return x / self.width, y / self.height
+
+    def draw_surface(self):
+        rgb_surface = pygame.image.tostring(self.screen, 'RGB')
+        gl.glBindTexture(gl.GL_TEXTURE_2D, self.texture_id)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER,
+                           gl.GL_NEAREST)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER,
+                           gl.GL_NEAREST)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP)
+        rect = self.screen.get_rect()
+        gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGB, rect.width,
+                        rect.height, 0, gl.GL_RGB, gl.GL_UNSIGNED_BYTE,
+                        rgb_surface)
+        gl.glGenerateMipmap(gl.GL_TEXTURE_2D)
+        gl.glBindTexture(gl.GL_TEXTURE_2D, 0)
 
     def draw_line(self, sx, sy, dx, dy, width, color, alpha):
         sx, sy = self.normalize_position(sx, sy)
@@ -145,7 +160,9 @@ class OpenGL(SDL):
         gl.glRotatef(self.rot_z, 0, 0, 1)
 
     def _display(self):
+        self.draw_surface()
         pygame.display.flip()
+        # Slowly rotate the screen.
         self.rot_z += .02
 
     def _process_event(self, event):
