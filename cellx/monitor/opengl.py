@@ -18,6 +18,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# FIXME: Support text rendering.
+# FIXME: Support polygon rendering.
+# FIXME: Support spline rendering.
+# FIXME: Support fixed objects.
+
 import math
 
 from cellx.monitor.sdl import SDL
@@ -41,11 +46,11 @@ class OpenGL(SDL):
 
     def init(self):
         super().init()
+        # Re-initialize display with OpenGL support.
         width, height = self.width, self.height
         self.hwscreen = pygame.display.set_mode(
             (width, height), pygame.OPENGL | pygame.DOUBLEBUF)
         glut.glutInit()
-        self._clear()
 
         gl.glShadeModel(gl.GL_SMOOTH)
         # FIXME: Not supported?
@@ -77,8 +82,6 @@ class OpenGL(SDL):
         # FIXME: Not supported?
         # gl.glLightModel(gl.GL_LIGHT_MODEL_AMBIENT, (.3, .3, .3, 1))
 
-        self.texture_id = gl.glGenTextures(1)
-
     def normalize_position(self, x, y):
         return (x - self.width /
                 2) / self.width, -(y - self.height / 2) / self.height
@@ -89,22 +92,6 @@ class OpenGL(SDL):
     def relative_position(self, x, y):
         return x / self.width, y / self.height
 
-    def draw_surface(self):
-        rgb_surface = pygame.image.tostring(self.screen, 'RGB')
-        gl.glBindTexture(gl.GL_TEXTURE_2D, self.texture_id)
-        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER,
-                           gl.GL_NEAREST)
-        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER,
-                           gl.GL_NEAREST)
-        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP)
-        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP)
-        rect = self.screen.get_rect()
-        gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGB, rect.width,
-                        rect.height, 0, gl.GL_RGB, gl.GL_UNSIGNED_BYTE,
-                        rgb_surface)
-        gl.glGenerateMipmap(gl.GL_TEXTURE_2D)
-        gl.glBindTexture(gl.GL_TEXTURE_2D, 0)
-
     def draw_line(self, sx, sy, dx, dy, width, color, alpha, use_line=False):
         if sx > dx:
             sx, sy, dx, dy = dx, dy, sx, sy
@@ -114,17 +101,21 @@ class OpenGL(SDL):
         color = self.palette.rgba(color, alpha)
         gl.glColor4ub(*color)
         if use_line:
+            # Draw a line segment between (SX, SY) and (DX, DY).
             gl.glLineWidth(w)
             gl.glBegin(gl.GL_LINES)
             gl.glVertex2d(sx, sy)
             gl.glVertex2d(dx, dy)
             gl.glEnd()
         else:
+            # Place a square rod connecting (SX, SY) and (DX, DY).
+            # This code assumes SX is smaller than DX.
             gl.glPushMatrix()
             gl.glTranslatef(sx, sy, 0)
             angle = math.degrees(math.atan2(dy - sy, dx - sx))
             gl.glRotatef(angle, 0, 0, 1)
             l = math.sqrt((dx - sx)**2 + (dy - sy)**2)
+            # Rotate 45 degrees for better visibility.
             gl.glRotatef(45, 1, 0, 0)
             gl.glScalef(l, w, w)
             gl.glTranslatef(.5, 0, 0)
@@ -165,6 +156,7 @@ class OpenGL(SDL):
 
     def _clear(self):
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+        # Initialize view port settings.
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glLoadIdentity()
         gl.glOrtho(self.xoffset - .5 * self.zoom,
@@ -178,13 +170,13 @@ class OpenGL(SDL):
         gl.glRotatef(self.rot_z, 0, 0, 1)
 
     def _display(self):
-        self.draw_surface()
         pygame.display.flip()
         # Slowly rotate the screen.
         self.rot_z += .02
 
     def _process_event(self, event):
         super()._process_event(event)
+        # Mouse wheel zooms in and out the view.
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 4:
                 self.zoom *= .99
@@ -196,9 +188,11 @@ class OpenGL(SDL):
         if event.type == pygame.MOUSEMOTION:
             x, y = event.pos
             rx, ry = self.relative_position(x, y)
+            # Dragging the left button tilts the view.
             if self.last_button == 1:
                 self.rot_x = (rx - .5) * 180
                 self.rot_y = (ry - .5) * 180
+            # Dragging the right button change the visialbe area.
             if self.last_button == 3:
                 self.xoffset = -(rx - .5)
                 self.yoffset = ry - .5
