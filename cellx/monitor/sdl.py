@@ -212,6 +212,9 @@ class SDL(Null):
             if not obj.fixed:
                 self.render(obj)
 
+    def _display(self):
+        pygame.display.update()
+
     def _process_events(self):
         while True:
             event = pygame.event.poll()
@@ -227,10 +230,10 @@ class SDL(Null):
                 if key == pygame.K_SPACE:
                     self.pause = not self.pause
             if event.type == pygame.VIDEOEXPOSE:
-                pygame.display.update()
+                self._display()
 
     def display(self):
-        pygame.display.update()
+        self._display()
         self._process_events()
 
     def wait(self):
