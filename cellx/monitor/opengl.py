@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 #
 #
-# Copyright (c) 2018, Hiroyuki Ohsaki.
+# Copyright (c) 2023, Hiroyuki Ohsaki.
 # All rights reserved.
-#
-# $Id: sdl.py,v 1.9 2019/07/06 16:11:41 ohsaki Exp ohsaki $
 #
 
 # This program is free software: you can redistribute it and/or modify
@@ -34,6 +32,13 @@ import tbdump
 
 class OpenGL(SDL):
     def __init__(self, *kargs, **kwargs):
+        self.xoffset = 0.
+        self.yoffset = 0.
+        self.zoom = 1.
+        self.rot_x = 0.
+        self.rot_y = 0.
+        self.rot_z = 0.
+        self.last_button = None
         super().__init__(*kargs, **kwargs)
 
     def init(self):
@@ -42,12 +47,7 @@ class OpenGL(SDL):
         self.hwscreen = pygame.display.set_mode(
             (width, height), pygame.OPENGL | pygame.DOUBLEBUF)
         glut.glutInit()
-
-        # Initialize projection and model view matrices.
-        gl.glMatrixMode(gl.GL_PROJECTION)
-        gl.glLoadIdentity()
-        gl.glOrtho(-.5, .5, -.5, .5, -100, 100)
-        gl.glMatrixMode(gl.GL_MODELVIEW)
+        self._clear()
 
         gl.glShadeModel(gl.GL_SMOOTH)
         # FIXME: Not supported?
@@ -86,6 +86,9 @@ class OpenGL(SDL):
     def normalize_size(self, l):
         return l / self.width
 
+    def relative_position(self, x, y):
+        return x / self.width, y / self.height
+
     def draw_line(self, sx, sy, dx, dy, width, color, alpha):
         sx, sy = self.normalize_position(sx, sy)
         dx, dy = self.normalize_position(dx, dy)
@@ -100,10 +103,11 @@ class OpenGL(SDL):
     def _render_box(self, obj):
         x, y = self.normalize_position(obj.x, obj.y)
         w, h = self.normalize_size(obj.width), self.normalize_size(obj.height)
+        z = self.normalize_size(obj.priority)
         color = self.palette.rgba(obj.color, obj.alpha)
         gl.glColor4ub(*color)
         gl.glPushMatrix()
-        gl.glTranslatef(x, y, obj.priority)
+        gl.glTranslatef(x, y, z)
         gl.glScalef(w, h, (w + h) / 2)
         gl.glMaterial(gl.GL_FRONT, gl.GL_EMISSION, (.2, .2, 0, 1))
         glut.glutSolidCube(1)
@@ -112,39 +116,70 @@ class OpenGL(SDL):
 
     def _render_ellipse(self, obj):
         x, y = self.normalize_position(obj.x, obj.y)
+        z = self.normalize_size(obj.priority)
         r = self.normalize_size(obj.width / 2)
         color = self.palette.rgba(obj.color, obj.alpha)
         gl.glColor4ub(*color)
         gl.glPushMatrix()
-        gl.glTranslatef(x, y, obj.priority)
+        gl.glTranslatef(x, y, z)
         glut.glutSolidSphere(r, 20, 20)
         gl.glPopMatrix()
 
     def render_objects(self, objs):
+        self._clear()
         # FIXME: support `fix' objects.
         super().render_objects(objs)
 
     def _clear(self):
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-
-        xoffset, yoffset = 0, 0
-        zoom = .7
         gl.glMatrixMode(gl.GL_PROJECTION)
-        # gl.glLoadIdentity();
-        # gl.glOrtho(
-        #     xoffset - .5 * zoom,
-        #         xoffset + .5 * zoom,
-        #             yoffset - .5 * zoom,
-        #                 yoffset + .5 * zoom,
-        #                     -100, 100
-        #                         )
-
-        gl.glMatrixMode(gl.GL_MODELVIEW);
-        # gl.glLoadIdentity();
-
+        gl.glLoadIdentity()
+        gl.glOrtho(self.xoffset - .5 * self.zoom,
+                   self.xoffset + .5 * self.zoom,
+                   self.yoffset - .5 * self.zoom,
+                   self.yoffset + .5 * self.zoom, -100, 100)
+        gl.glMatrixMode(gl.GL_MODELVIEW)
+        gl.glLoadIdentity()
+        gl.glRotatef(self.rot_x, 0, 1, 0)
+        gl.glRotatef(self.rot_y, 1, 0, 0)
+        gl.glRotatef(self.rot_z, 0, 0, 1)
 
     def _display(self):
         pygame.display.flip()
+        self.rot_z += .02
 
+    def _process_events(self):
+        # FIXME: Avoid code duplicates with sdl.py.
+        while True:
+            event = pygame.event.poll()
+            if event.type == pygame.NOEVENT:
+                if not self.pause:
+                    return
+                else:
+                    continue
+            if event.type == pygame.KEYDOWN:
+                key = event.key
+                if key == pygame.K_q or key == pygame.K_ESCAPE:
+                    exit()
+                if key == pygame.K_SPACE:
+                    self.pause = not self.pause
+            if event.type == pygame.VIDEOEXPOSE:
+                self._display()
 
-        gl.glRotatef(.01, .01, .02, 1)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 4:
+                    self.zoom *= .99
+                if event.button == 5:
+                    self.zoom *= 1.01
+                self.last_button = event.button
+            if event.type == pygame.MOUSEBUTTONUP:
+                self.last_button = None
+            if event.type == pygame.MOUSEMOTION:
+                x, y = event.pos
+                rx, ry = self.relative_position(x, y)
+                if self.last_button == 1:
+                    self.rot_x = (rx - .5) * 180
+                    self.rot_y = (ry - .5) * 180
+                if self.last_button == 3:
+                    self.xoffset = -(rx - .5)
+                    self.yoffset = ry - .5
