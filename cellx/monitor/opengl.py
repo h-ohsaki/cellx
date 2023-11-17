@@ -51,10 +51,6 @@ class OpenGL(SDL):
         self.hwscreen = pygame.display.set_mode(
             (width, height), pygame.OPENGL | pygame.DOUBLEBUF)
         glut.glutInit()
-        pygame.display.gl_set_attribute(pygame.GL_ACCUM_RED_SIZE, 16)
-        pygame.display.gl_set_attribute(pygame.GL_ACCUM_GREEN_SIZE, 16)
-        pygame.display.gl_set_attribute(pygame.GL_ACCUM_BLUE_SIZE, 16)
-        pygame.display.gl_set_attribute(pygame.GL_ACCUM_ALPHA_SIZE, 16)
 
         gl.glShadeModel(gl.GL_SMOOTH)
         # FIXME: Not supported?
@@ -85,10 +81,6 @@ class OpenGL(SDL):
         gl.glLight(gl.GL_LIGHT0, gl.GL_AMBIENT, (.3, .3, .3, 1))
         # FIXME: Not supported?
         # gl.glLightModel(gl.GL_LIGHT_MODEL_AMBIENT, (.3, .3, .3, 1))
-
-        # Initialize accumulation buffer.
-        gl.glClearAccum( 0, 0, 0, 0 );
-        gl.glClear(gl.GL_ACCUM_BUFFER_BIT);
 
     def normalize_position(self, x, y):
         return (x - self.width /
@@ -178,11 +170,6 @@ class OpenGL(SDL):
         gl.glRotatef(self.rot_z, 0, 0, 1)
 
     def _display(self):
-        alpha = 40
-        gl.glAccum( gl.GL_MULT,   1 - alpha / 256 )
-        gl.glAccum( gl.GL_ACCUM,  alpha / 256 )
-        gl.glAccum( gl.GL_RETURN, 1 )
-
         pygame.display.flip()
         # Slowly rotate the screen.
         self.rot_z += .02
