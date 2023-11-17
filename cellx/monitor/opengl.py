@@ -148,38 +148,22 @@ class OpenGL(SDL):
         pygame.display.flip()
         self.rot_z += .02
 
-    def _process_events(self):
-        # FIXME: Avoid code duplicates with sdl.py.
-        while True:
-            event = pygame.event.poll()
-            if event.type == pygame.NOEVENT:
-                if not self.pause:
-                    return
-                else:
-                    continue
-            if event.type == pygame.KEYDOWN:
-                key = event.key
-                if key == pygame.K_q or key == pygame.K_ESCAPE:
-                    exit()
-                if key == pygame.K_SPACE:
-                    self.pause = not self.pause
-            if event.type == pygame.VIDEOEXPOSE:
-                self._display()
-
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 4:
-                    self.zoom *= .99
-                if event.button == 5:
-                    self.zoom *= 1.01
-                self.last_button = event.button
-            if event.type == pygame.MOUSEBUTTONUP:
-                self.last_button = None
-            if event.type == pygame.MOUSEMOTION:
-                x, y = event.pos
-                rx, ry = self.relative_position(x, y)
-                if self.last_button == 1:
-                    self.rot_x = (rx - .5) * 180
-                    self.rot_y = (ry - .5) * 180
-                if self.last_button == 3:
-                    self.xoffset = -(rx - .5)
-                    self.yoffset = ry - .5
+    def _process_event(self, event):
+        super()._process_event(event)
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 4:
+                self.zoom *= .99
+            if event.button == 5:
+                self.zoom *= 1.01
+            self.last_button = event.button
+        if event.type == pygame.MOUSEBUTTONUP:
+            self.last_button = None
+        if event.type == pygame.MOUSEMOTION:
+            x, y = event.pos
+            rx, ry = self.relative_position(x, y)
+            if self.last_button == 1:
+                self.rot_x = (rx - .5) * 180
+                self.rot_y = (ry - .5) * 180
+            if self.last_button == 3:
+                self.xoffset = -(rx - .5)
+                self.yoffset = ry - .5
