@@ -71,16 +71,15 @@ class OpenGL(SDL):
         gl.glEnable(gl.GL_COLOR_MATERIAL)
 
         # Configure lights.
-        mat_specular = (1, 1, 0, 1)
-        gl.glMaterial(gl.GL_FRONT, gl.GL_SPECULAR, *mat_specular)
-        mat_diffuse = (0, 1, 1, 1)
-        gl.glMaterial(gl.GL_FRONT, gl.GL_DIFFUSE, *mat_diffuse)
-        gl.glMaterialf(gl.GL_FRONT, gl.GL_SHININESS, 50)
-        light_position = (-.25, .25, .5, 0)
-        gl.glLight(gl.GL_LIGHT0, gl.GL_POSITION, *light_position)
-        gl.glLight(gl.GL_LIGHT0, gl.GL_AMBIENT, (.3, .3, .3, 1))
-        # FIXME: Not supported?
-        # gl.glLightModel(gl.GL_LIGHT_MODEL_AMBIENT, (.3, .3, .3, 1))
+        gl.glMaterial(gl.GL_FRONT, gl.GL_AMBIENT, (.8, .0, .2, 1.))
+        gl.glMaterial(gl.GL_FRONT, gl.GL_DIFFUSE, (1., 1., 1., 1.))
+        gl.glMaterial(gl.GL_FRONT, gl.GL_SPECULAR, (.4, .4, .4, 1.))
+        gl.glMaterialf(gl.GL_FRONT, gl.GL_SHININESS, 100)
+
+        gl.glLight(gl.GL_LIGHT0, gl.GL_POSITION, (-80, 80, -50, 1))
+        gl.glLight(gl.GL_LIGHT0, gl.GL_AMBIENT, (1, 1, 1, 1))
+        gl.glLight(gl.GL_LIGHT0, gl.GL_DIFFUSE, (.2, .7, .7, 1))
+        gl.glLight(gl.GL_LIGHT0, gl.GL_SPECULAR, (1, 1, 1, 1))
 
     def normalize_position(self, x, y):
         return (x - self.width /
