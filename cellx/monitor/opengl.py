@@ -18,16 +18,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import math
+
+from cellx.monitor.sdl import SDL
 import OpenGL.GL as gl
 import OpenGL.GLUT as glut
 import cellx
 import pygame
-from cellx.monitor.sdl import SDL
-
 import tbdump
 
 class OpenGL(SDL):
     def __init__(self, *kargs, **kwargs):
+        # View port settings.
         self.xoffset = 0.
         self.yoffset = 0.
         self.zoom = 1.
@@ -35,7 +37,6 @@ class OpenGL(SDL):
         self.rot_y = 0.
         self.rot_z = 0.
         self.last_button = None
-        self.texture_id = None
         super().__init__(*kargs, **kwargs)
 
     def init(self):
@@ -79,8 +80,8 @@ class OpenGL(SDL):
         self.texture_id = gl.glGenTextures(1)
 
     def normalize_position(self, x, y):
-        return (x - self.width / 2) / self.width, (
-            y - self.height / 2) / self.height
+        return (x - self.width /
+                2) / self.width, -(y - self.height / 2) / self.height
 
     def normalize_size(self, l):
         return l / self.width
@@ -104,16 +105,33 @@ class OpenGL(SDL):
         gl.glGenerateMipmap(gl.GL_TEXTURE_2D)
         gl.glBindTexture(gl.GL_TEXTURE_2D, 0)
 
-    def draw_line(self, sx, sy, dx, dy, width, color, alpha):
+    def draw_line(self, sx, sy, dx, dy, width, color, alpha, use_line=False):
+        if sx > dx:
+            sx, sy, dx, dy = dx, dy, sx, sy
         sx, sy = self.normalize_position(sx, sy)
         dx, dy = self.normalize_position(dx, dy)
+        w = self.normalize_size(width)
         color = self.palette.rgba(color, alpha)
-        gl.glLineWidth(width)
         gl.glColor4ub(*color)
-        gl.glBegin(gl.GL_LINES)
-        gl.glVertex2d(sx, sy)
-        gl.glVertex2d(dx, dy)
-        gl.glEnd()
+        if use_line:
+            gl.glLineWidth(w)
+            gl.glBegin(gl.GL_LINES)
+            gl.glVertex2d(sx, sy)
+            gl.glVertex2d(dx, dy)
+            gl.glEnd()
+        else:
+            gl.glPushMatrix()
+            gl.glTranslatef(sx, sy, 0)
+            angle = math.degrees(math.atan2(dy - sy, dx - sx))
+            gl.glRotatef(angle, 0, 0, 1)
+            l = math.sqrt((dx - sx)**2 + (dy - sy)**2)
+            gl.glRotatef(45, 1, 0, 0)
+            gl.glScalef(l, w, w)
+            gl.glTranslatef(.5, 0, 0)
+            gl.glMaterial(gl.GL_FRONT, gl.GL_EMISSION, (.2, .2, 0, 1))
+            glut.glutSolidCube(1)
+            gl.glMaterial(gl.GL_FRONT, gl.GL_EMISSION, (0, 0, 0, 1))
+            gl.glPopMatrix()
 
     def _render_box(self, obj):
         x, y = self.normalize_position(obj.x, obj.y)
