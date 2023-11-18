@@ -42,7 +42,9 @@ class OpenGL(SDL):
         self.rot_x = 0.
         self.rot_y = 0.
         self.rot_z = 0.
+
         self.last_button = None
+        self.fixed_list = None
         super().__init__(*kargs, **kwargs)
         self.font_bitmap = self.load_font()
 
@@ -159,7 +161,8 @@ class OpenGL(SDL):
 
     def _render_ellipse(self, obj, use_polygon=False):
         if use_polygon:
-            self.draw_ellipse(obj.x, obj.y, obj.width / 2, obj.color, obj.alpha)
+            self.draw_ellipse(obj.x, obj.y, obj.width / 2, obj.color,
+                              obj.alpha)
             return
 
         x, y = self.normalize_position(obj.x, obj.y)
@@ -172,15 +175,14 @@ class OpenGL(SDL):
         glut.glutSolidSphere(r, 20, 20)
         gl.glPopMatrix()
 
-
-    def _render_polygon( self, obj ):
+    def _render_polygon(self, obj):
         vertices = obj.vertices()
         color = self.palette.rgba(obj.color, obj.alpha)
-        gl.glColor4ub( *color)
+        gl.glColor4ub(*color)
         gl.glBegin(gl.GL_POLYGON)
         for v in vertices:
-            x, y  = self.normalize_position( *v )
-            gl.glVertex2d( x, y )
+            x, y = self.normalize_position(*v)
+            gl.glVertex2d(x, y)
         gl.glEnd()
 
     def _render_spline(self, obj):
@@ -212,9 +214,25 @@ class OpenGL(SDL):
         gl.glPopMatrix()
 
     def render_objects(self, objs):
+        # Render fixed but not-rendered objects.
+        if not self.fixed_list:
+            self.fixed_list = gl.glGenLists(1)
+            gl.glNewList(self.fixed_list, gl.GL_COMPILE)
+            for obj in objs:
+                if not obj.fixed:
+                    continue
+                self.render(obj)
+            gl.glEndList()
+
+        # Reset to pre-rendered suface
         self._clear()
-        # FIXME: support `fix' objects.
-        super().render_objects(objs)
+        gl.glCallList(self.fixed_list)
+
+        # Render non-fixed objects.
+        for obj in objs:
+            if obj.fixed:
+                continue
+            self.render(obj)
 
     def _clear(self):
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
