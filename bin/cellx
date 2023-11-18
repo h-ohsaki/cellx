@@ -30,11 +30,12 @@ import cellx
 
 def usage():
     die("""\
-usage: {} [-dE] [-c #] [-M class] [-F rate] [-L rate] [-A alpha] [file...]
+usage: {} [-dEg] [-c #] [-M class] [-F rate] [-L rate] [-A alpha] [file...]
   -d        debug mode
   -E        enable macro expansion with cpp
+  -g        use OpenGL monitor class
   -c #      select color scheme
-  -M class  monitor class (Null/SDL/SDL_Filter/PostScript) (default: SDL)
+  -M class  monitor class (Null/SDL/SDL_Filter/PostScript/OpenGL) (default: SDL)
   -F rate   the number of frames per animation/fading
   -L rate   limit the frame rate (default: infinity)
   -A alpha  alpha for filtering effect (default: 64)
@@ -92,11 +93,13 @@ def read_via_cpp(parser):
     th.join()
 
 def main():
-    opt = getopts('dEc:M:F:L:A:') or usage()
+    opt = getopts('dEgc:M:F:L:A:') or usage()
     debug = opt.d
     enable_cpp = opt.E
     color_scheme = int(opt.c) if opt.c else 0
     monitor_class = opt.M if opt.M else 'SDL'
+    if opt.g:
+        monitor_class = 'OpenGL'
     frame_rate = float(opt.F) if opt.F else 30
     rate_limit = float(opt.L) if opt.L else None
     alpha = int(opt.A) if opt.A else 64
