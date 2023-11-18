@@ -7,7 +7,7 @@ with open('README.md', 'r') as fh:
 
 setuptools.setup(
     name="cellx",
-    version="1.12",
+    version="1.13",
     author="Hiroyuki Ohsaki",
     author_email="ohsaki@lsnl.jp",
     description=
@@ -16,7 +16,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/h-ohsaki/cellx",
     packages=setuptools.find_packages(),
-    install_requires=['pygame'],
+    install_requires=['pygame', 'PyOpenGL'],
     scripts=['bin/cellx'],
     classifiers=[
         "Programming Language :: Python :: 3",
