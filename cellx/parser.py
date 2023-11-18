@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 #
 #
-# Copyright (c) 2018, Hiroyuki Ohsaki.
+# Copyright (c) 2018-2023, Hiroyuki Ohsaki.
 # All rights reserved.
-#
-# $Id: parser.py,v 1.8 2019/07/06 16:10:08 ohsaki Exp ohsaki $
 #
 
 # This program is free software: you can redistribute it and/or modify
@@ -82,7 +80,7 @@ priority (name|regexp) level
 resize (name|regexp) (x y|name[(+|-)dx(+|-)dy])
 shift (name|regexp) dx dy
 sleep x
-spring [-f filter] [-r degree] (name|regexp)... [x1 y1 x2 y2]
+spring [-a] [-f filter] [-r degree] (name|regexp)... [x1 y1 x2 y2]
 unhide (name|regexp)...
 wait
 """
@@ -127,9 +125,9 @@ wait
           0.2 245      relative & absolute geometry (20% of screen width, 245)
           0.7 0.2      relative geometry (70% of screen width, 20% of screen height)"""
 
-        # FIXME: shoud not check type
+        # FIXME: Shoud not check type.
         if type(arg1) == str:
-            # object name with offset?
+            # Object name with offset?
             m = re.search(r'(\w+)([+-][\d.]+)([+-][\d.]+)', arg1)
             if m:
                 name, dx, dy = m.group(1), m.group(2), m.group(3)
@@ -137,11 +135,11 @@ wait
                 return (self.cell.object(name).x + dx,
                         self.cell.object(name).y + dy)
 
-            # object name?
+            # Object name?
             if self.cell.object(arg1):
                 return (self.cell.object(arg1).x, self.cell.object(arg1).y)
 
-            # must be positions
+            # Must be positions.
             if not re.search(r'[\d.eE+-]+', arg1):
                 self.abort("inlvaid positional parameter '%s'", arg1)
             if not re.search(r'[\d.eE+-]+', arg2):
@@ -168,11 +166,11 @@ wait
         if name == '-':
             return [None]
 
-        # reference to the last object
+        # Reference to the last object.
         if name == '--':
             return [self.last_name]
 
-        # regular expression
+        # Regular expression.
         m = re.match(r'/(.*)/', name)
         if m:
             regexp = m.group(1)
@@ -184,11 +182,11 @@ wait
                         "expand_name: non-matching regexp '{}'".format(regexp))
             return matches
 
-        # number
+        # Number.
         if re.match(r'[+-]?[\d.]+', name):
             return [name]
 
-        # existing object
+        # Existing object.
         if self.cell.object(name):
             return [name]
 
@@ -202,7 +200,7 @@ wait
         objects."""
         found = []
         for name in names:
-            # FIXME: should remove duplicates?
+            # FIXME: Should remove duplicates?
             found.extend(
                 self.expand_name(name,
                                  allow_create=allow_create,
@@ -214,7 +212,7 @@ wait
         template TEMPLATE.  Parsed options with their values are return as a
         dictionary.  Arguments ARGS are shortened to be composed of remaining
         arguments."""
-        # FIXME: rewrite using getopt module
+        # FIXME: Rewrite using getopt module.
         opt_type = {}
         for spec in re.findall(r'\w:?', template):
             if ':' in spec:
@@ -342,7 +340,7 @@ wait
         rotation = 90 + cellx.rad2deg(math.atan2(dy - sy, dx - sx))
         obj = self.define_polygon(name, [3, size, color, dx, dy],
                                   {'r': rotation})
-        # FIXME: arrow head shoul be attached
+        # FIXME: Arrow head shoul be attached.
         return obj
 
     def define_line(self, name, args, opts):
@@ -368,7 +366,7 @@ wait
         )
         self.cell.add(obj)
 
-        # FIXME: head size must be configurable
+        # FIXME: Head size must be configurable.
         if 'h' in opts:
             self._define_arrowhead(name + '_head', x, y, x2, y2, width * 2,
                                    color)
@@ -427,7 +425,7 @@ wait
         )
         self.cell.add(obj)
 
-        # FIXME: head size must be configurable
+        # FIXME: Head size must be configurable.
         if 'h' in opts:
             self._define_arrowhead(name + '_head', x2, y2, x3, y3, width * 2,
                                    color)
@@ -465,8 +463,8 @@ wait
         self.cell.add(obj)
         return obj
 
-    # FIXME: merge with define_line since these are almost identical
-    # FIXME: automatically detect horizontal/vertical directions
+    # FIXME: Merge with define_line since these are almost identical.
+    # FIXME: Automatically detect horizontal/vertical directions.
     def define_wire(self, name, args, opts):
         """Createa a wire object with name NAME.  Parameters (x, y, x2, y2,
         width and color) are taken from ARGS.  Arrowhead and arrowtail are
@@ -491,8 +489,8 @@ wait
         )
         self.cell.add(obj)
 
-        # FIXME: head size must be configurable
-        # force arrowhead to have a right angle
+        # FIXME: Head size must be configurable.
+        # Force arrowhead to have a right angle.
         if 'h' in opts:
             self._define_arrowhead(name + '_head', x, y2, x2, y2, width * 2,
                                    color)
@@ -536,7 +534,7 @@ wait
 
     def _parse_spring(self, args):
         """Parse arguments ARGS for spring command."""
-        opts = self.parse_options('f:r:', args)
+        opts = self.parse_options('af:r:', args)
         x1, y1 = self.cell.width * .05, self.cell.height * .05
         x2, y2 = self.cell.width * .95, self.cell.height * .95
         args = self.expand_names(*args)
@@ -576,16 +574,16 @@ wait
         """Parse a sing line LINE, which can be either a simple statement, a
         comment, or a blank line."""
 
-        # remove comment
+        # Remove comment.
         line = re.sub(r'^#.*', '', line)
-        # remove indentation
+        # Remove indentation.
         line = re.sub(r'^\s+', '', line)
         if not line:
             return
 
         args = line.split()
         cmd = args.pop(0).lower()
-        # record the second argument (may be object name) for later reference
+        # Record the second argument (may be object name) for later reference.
         current_name = args[0] if args else None
 
         if cmd.startswith('al'):  # alpha
@@ -650,7 +648,7 @@ wait
             for n in self.expand_name(name):
                 self.cell.object(n).shift(dx, dy)
         elif cmd.startswith('sl'):  # sleep
-            secs = args.pop(0)
+            secs = float(args.pop(0))
             time.sleep(secs)
         elif cmd.startswith('sp'):  # spring
             self._parse_spring(args)
@@ -671,6 +669,6 @@ wait
         semicolons. """
         self.line = line
         self.lineno += 1
-        # FIXME: should ignore semicolon in string
+        # FIXME: Should ignore semicolon in string.
         for l in line.split(';'):
             self.parse_single_line(l)
