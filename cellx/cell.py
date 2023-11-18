@@ -97,21 +97,33 @@ class Cell:
         astr += '}\n'
         return astr
 
+    def _fit_within(self, x1, y1, x2, y2, positions):
+        xmin = min([x for x, y in positions.values()])
+        xmax = max([x for x, y in positions.values()])
+        ymin = min([y for x, y in positions.values()])
+        ymax = max([y for x, y in positions.values()])
+        new_positions = {}
+        for name in positions:
+            x, y = positions[name]
+            x = x1 + (x2 - x1) * (x - xmin) / (xmax - xmin)
+            y = y1 + (y2 - y1) * (y - ymin) / (ymax - ymin)
+            new_positions[name] = (x, y)
+        return new_positions
+
     def fit_within(self, x1, y1, x2, y2, names):
         """Map the geometry of all cell objects in NAMES within the region of
         corners (X1, Y1) and (X2, Y2).  For instance, the object at the most
         south-west position is moved to (X1, Y1).  The object at the most
         north-east position is moved to (X2, Y2).  The relative geometries of
         objects are preserved."""
-        xmin = min([self.object(name).x for name in names])
-        xmax = max([self.object(name).x for name in names])
-        ymin = min([self.object(name).y for name in names])
-        ymax = max([self.object(name).y for name in names])
+        positions = {}
         for name in names:
             obj = self.object(name)
-            x, y = obj.x, obj.y
-            x = x1 + (x2 - x1) * (x - xmin) / (xmax - xmin)
-            y = y1 + (y2 - y1) * (y - ymin) / (ymax - ymin)
+            positions[name] = (obj.x, obj.y)
+        positions = self._fit_within(x1, y1, x2, y2, positions)
+        for name in positions:
+            obj = self.object(name)
+            x, y = positions[name]
             obj.move(x, y)
 
     def spring(self, x1, y1, x2, y2, names, opts):
@@ -122,6 +134,7 @@ class Cell:
         0)."""
         filter = opts.get('f', 'neato')
         rotate = opts.get('r', 0)
+        animate = opts.get('a', None)
 
         # export parent objects in DOT format
         tmpf = tempfile.NamedTemporaryFile(delete=False)
@@ -135,12 +148,21 @@ class Cell:
         # parse GraphViz output and extract object positions
         buf = tmpf.read().decode()
         buf = re.sub('\n', '', buf)
+        positions = {}
         for line in buf.split(']'):
             m = re.search(r'(\S+)\s*\[.*pos="([\d.-]+),([\d.-]+)",', line)
             if m:
                 name, x, y = m.group(1), float(m.group(2)), float(m.group(3))
                 name = name.replace('\"', '')
-                self.object(name).move(x, y)
+                positions[name] = (x, y)
+
+        # rescale all objects to fit within the area
+        positions = self._fit_within(x1, y1, x2, y2, positions)
+        for name in positions:
+            if animate:
+                self.animate(name, *positions[name])
+            else:
+                self.object(name).move(*positions[name])
 
         # rotate all objects if necessary
         if rotate:
@@ -148,8 +170,6 @@ class Cell:
                 self.object(name).rotate_around(rotate,
                                                 self.width() / 2,
                                                 self.height() / 2)
-        # rescale all objects to fit within the area
-        self.fit_within(x1, y1, x2, y2, names)
 
     def display(self):
         """Display all cell objects through its monitor object.  Render
