@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 #
 #
-# Copyright (c) 2018, Hiroyuki Ohsaki.
+# Copyright (c) 2018-2023, Hiroyuki Ohsaki.
 # All rights reserved.
-#
-# $Id: util.py,v 1.2 2019/03/10 11:49:53 ohsaki Exp ohsaki $
 #
 
 # This program is free software: you can redistribute it and/or modify
