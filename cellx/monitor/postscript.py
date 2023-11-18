@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 #
 #
-# Copyright (c) 2013-2019, Hiroyuki Ohsaki.
+# Copyright (c) 2013-2023, Hiroyuki Ohsaki.
 # All rights reserved.
-#
-# $Id: PostScript.pm,v 1.16 2016/12/08 03:30:10 ohsaki Exp ohsaki $
 #
 
 # This program is free software: you can redistribute it and/or modify
@@ -130,12 +128,12 @@ gsave
 grestore
 """.format(sx, sy, dx, dy, gray, width))
 
-    # taken from Monitro::SDL
+    # Taken from Monitro::SDL.
     def _render_line(self, obj):
         self.draw_line(obj.x, obj.y, obj.x2, obj.y2, obj.width, obj.color,
                        obj.alpha)
 
-    # taken from Monitro::SDL
+    # Taken from Monitro::SDL.
     def _render_link(self, obj):
         src, dst = obj.src, obj.dst
         self.draw_line(src.x, src.y, dst.x, dst.y, obj.width, obj.color,
@@ -196,7 +194,7 @@ grestore""".format(x, y, x, y, x2, y2, x3, y3, gray, width))
     def _render_text(self, obj):
         name = obj.name
         font = 'Helvetica'
-        # use Japanese font if any non-ascii character is contained
+        # Use Japanese font if any non-ascii character is contained.
         if not obj.text.isascii():
             font = 'GothicBBB-Medium-EUC-H'
         x, y = self.normalize_position(obj.x, obj.y)
@@ -210,11 +208,11 @@ grestore""".format(x, y, x, y, x2, y2, x3, y3, gray, width))
             self._render_string(str, x, y - size / 3.5, size, gray, align)
             y -= size
 
-    # taken from Monitro::SDL
+    # Taken from Monitro::SDL.
     def _render_wire(self, obj):
         x, y = (obj.x, obj.y)
         x2, y2 = (obj.x2, obj.y2)
-        # slightly extend the line length to draw smooth corners
+        # Slightly extend the line length to draw smooth corners.
         xsign = sign(x2 - x)
         ysign = sign(y2 - y)
         delta = obj.width / 2
