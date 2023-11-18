@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 #
 #
-# Copyright (c) 2018-2019, Hiroyuki Ohsaki.
+# Copyright (c) 2018-2023, Hiroyuki Ohsaki.
 # All rights reserved.
-#
-# $Id: null.py,v 1.4 2019/03/10 11:49:59 ohsaki Exp ohsaki $
 #
 
 # This program is free software: you can redistribute it and/or modify
