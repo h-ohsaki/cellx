@@ -24,14 +24,11 @@
 # FIXME: Support fixed objects.
 
 import math
-import random
 
 from cellx.monitor.sdl import SDL
 import OpenGL.GL as gl
 import OpenGL.GLUT as glut
-import cellx
 import pygame
-import tbdump
 
 class OpenGL(SDL):
     def __init__(self, *kargs, **kwargs):
