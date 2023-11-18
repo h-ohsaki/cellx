@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 #
 #
-# Copyright (c) 2018-2019, Hiroyuki Ohsaki.
+# Copyright (c) 2018-2023, Hiroyuki Ohsaki.
 # All rights reserved.
-#
-# $Id: object.py,v 1.6 2019/03/10 11:49:50 ohsaki Exp ohsaki $
 #
 
 # This program is free software: you can redistribute it and/or modify
@@ -91,8 +89,8 @@ class Object:
         self.file = file
         self._bitmap_cache = None
 
-        # x2, y2, x3, y3 are used for multipurposes
-        # (x2, y2): child: offset to the parent
+        # x2, y2, x3, y3 are used for multipurposes.
+        # (x2, y2): Child: offset to the parent.
         self.x2 = x2
         self.y2 = y2
         self.x3 = x3
