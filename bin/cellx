@@ -93,22 +93,29 @@ def read_via_cpp(parser):
     th.join()
 
 def main():
-    opt = getopts('dEgc:M:F:L:A:') or usage()
+    opt = getopts('dEfgc:M:F:L:A:') or usage()
     debug = opt.d
     enable_cpp = opt.E
+    full_screen = opt.f
+    enable_opengl = opt.g
     color_scheme = int(opt.c) if opt.c else 0
     monitor_class = opt.M if opt.M else 'SDL'
-    if opt.g:
-        monitor_class = 'OpenGL'
     frame_rate = float(opt.F) if opt.F else 30
     rate_limit = float(opt.L) if opt.L else None
     alpha = int(opt.A) if opt.A else 64
 
+    if enable_opengl:
+        monitor_class = 'OpenGL'
+    screen_size = {'width': 800, 'height': 600}
+    if full_screen:
+        screen_size = {'width': 1920, 'height': 1080}
+
     cls = eval('cellx.monitor.' + monitor_class)
-    mon = cls(color_scheme=color_scheme, alpha=alpha)
-
-    cel = cellx.Cell(monitor=mon, frame_rate=frame_rate, rate_limit=rate_limit)
-
+    mon = cls(color_scheme=color_scheme, alpha=alpha, **screen_size)
+    cel = cellx.Cell(monitor=mon,
+                     frame_rate=frame_rate,
+                     rate_limit=rate_limit,
+                     **screen_size)
     parser = cellx.Parser(cell=cel)
 
     if enable_cpp:
