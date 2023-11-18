@@ -83,7 +83,8 @@ class OpenGL(SDL):
                 2) / self.width, -(y - self.height / 2) / self.height
 
     def normalize_size(self, l):
-        return l / self.width
+        # Force the minimum size to be one pixel.
+        return max(1/self.width, l / self.width)
 
     def relative_position(self, x, y):
         return x / self.width, y / self.height
@@ -249,8 +250,9 @@ class OpenGL(SDL):
     def _display(self):
         pygame.display.flip()
         # Slowly rotate the screen.
-        self.rot_z += .02
-        self.zoom *= 0.9999
+        self.rot_z += .03
+        self.zoom *= 0.9997
+        # self.zoom *= 1.0001
 
     def _process_event(self, event):
         super()._process_event(event)
