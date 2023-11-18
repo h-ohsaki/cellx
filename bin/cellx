@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # Command-driven drawing/visualization/animation/presentation tool.
-# Copyright (c) 2018-2019, Hiroyuki Ohsaki.
+# Copyright (c) 2018-2023, Hiroyuki Ohsaki.
 # All rights reserved.
 #
 
@@ -30,15 +30,45 @@ import cellx
 
 def usage():
     die("""\
-usage: {} [-E] [-c #] [-M class] [-F rate] [-L rate] [-A alpha] [-m #] [file...]
+usage: {} [-dE] [-c #] [-M class] [-F rate] [-L rate] [-A alpha] [file...]
+  -d        debug mode
   -E        enable macro expansion with cpp
   -c #      select color scheme
   -M class  monitor class (Null/SDL/SDL_Filter/PostScript) (default: SDL)
   -F rate   the number of frames per animation/fading
   -L rate   limit the frame rate (default: infinity)
-  -A alpha  alpha for filtering effect (0 <= alpha <= 255)
-  -m #  the number of frames to render (default: infinity)
-""".format(sys.argv[0]))
+  -A alpha  alpha for filtering effect (default: 64)
+
+cellx commands:
+  alpha (name|regexp) alpha
+  animate name (goal_x goal_y|name[(+|-)dx(+|-)dy])
+  attach name parent_name dx dy
+  color (name|regexp) color
+  define name bitmap file [(x y|name[(+|-)dx(+|-)dy])]
+  define name box [-f color] [width height color (x y|name[(+|-)dx(+|-)dy])]
+  define name ellipse [-f color] [rx ry color] [(x y|name[(+|-)dx(+|-)dy])]
+  define name line [-ht] sx sy dx dy [width color]
+  define name link src_name dst_name [width color]
+  define name polygon [-f color] [-r degree] n r [color (x y|name[(+|-)dx(+|-)dy])]
+  define name spline x1 y1 x2 y2 x3 y3 [width color]
+  define name text [-lcr] string [size color (x y|name[(+|-)dx(+|-)dy])]
+  define name wire [-ht] sx sy dx dy [width color]
+  display
+  fade (name|regexp)...
+  fix (name|regexp)...
+  hide (name|regexp)...
+  kill (name|regexp)...
+  move (name|regexp) (x y|name[(+|-)dx(+|-)dy])
+  palette symbol (r g b [alpha]|name [alpha])
+  play file
+  priority (name|regexp) level
+  resize (name|regexp) (x y|name[(+|-)dx(+|-)dy])
+  scale (name|regexp) ratio
+  shift (name|regexp) dx dy
+  sleep x
+  spring [-f filter] [-r degree] (name|regexp)... [x1 y1 x2 y2]
+  unhide (name|regexp)...
+  wait""".format(sys.argv[0]))
 
 def read_via_cpp(parser):
     # filter all input lines via pre-processor
@@ -62,7 +92,7 @@ def read_via_cpp(parser):
     th.join()
 
 def main():
-    opt = getopts('dEc:M:F:L:A:m:') or usage()
+    opt = getopts('dEc:M:F:L:A:') or usage()
     debug = opt.d
     enable_cpp = opt.E
     color_scheme = int(opt.c) if opt.c else 0
