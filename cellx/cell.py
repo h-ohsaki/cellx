@@ -139,7 +139,7 @@ class Cell:
         animate = opts.get('a', None)
 
         # Export parent objects in DOT format.
-        tmpf = tempfile.NamedTemporaryFile(delete=False)
+        tmpf = tempfile.NamedTemporaryFile(delete=True)
         pipe = os.popen('{} >{}'.format(filter, tmpf.name), mode='w')
         names = [name for name in names \
                     if not self.object(name).parent and self.object(name).type_ != 'link'
