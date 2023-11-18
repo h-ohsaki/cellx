@@ -110,7 +110,7 @@ class Palette:
         specified, alpha channel (A value) is multiplied (not overwritten) by
         ALPHA."""
         r, g, b, a = self.palette[name]
-        return r, g, b, a * alpha
+        return r, g, b, int(a * alpha)
 
     def rgb(self, name):
         """Return R, G and B values of color NAME as a tuple."""
