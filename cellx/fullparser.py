@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
-#
-# Copyright (c) 2019, Hiroyuki Ohsaki.
+# An experimental implementation of plyplus-based parser.
+# Copyright (c) 2019-2023, Hiroyuki Ohsaki.
 # All rights reserved.
 #
 
@@ -141,7 +141,6 @@ EOF: '<EOF>' ;
 
 import re
 
-
 import tbdump
 
 class FullParser(Parser):
@@ -154,9 +153,10 @@ class FullParser(Parser):
         if line == '':
             return
 
-        line = re.sub(r'^define +(\S+) +bitmap (\S+)', r'define \1 bitmap "\2"', line)
-        line = re.sub(r'^define +(\S+) +text (\S+)', r'define \1 text "\2"', line)
-
+        line = re.sub(r'^define +(\S+) +bitmap (\S+)',
+                      r'define \1 bitmap "\2"', line)
+        line = re.sub(r'^define +(\S+) +text (\S+)', r'define \1 text "\2"',
+                      line)
 
         ast = self.parser.parse(line + '\n')
         print(ast)
@@ -170,7 +170,7 @@ class FullParser(Parser):
             tree = ast.tail[0]
             atype = tree.head
 
-            # insert dash before option char 
+            # Insert dash before option char.
             for x in tree.select('option > name'):
                 print(type(x.tail[0]))
                 x.tail[0] = plyplus.common.TokValue('-' + x.tail[0])
