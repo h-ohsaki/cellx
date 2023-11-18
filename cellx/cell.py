@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 #
 #
-# Copyright (c) 2018, Hiroyuki Ohsaki.
+# Copyright (c) 2018-2023, Hiroyuki Ohsaki.
 # All rights reserved.
-#
-# $Id: cell.py,v 1.8 2019/03/10 11:49:46 ohsaki Exp $
 #
 
 # This program is free software: you can redistribute it and/or modify
@@ -86,7 +84,7 @@ class Cell:
         astr = 'graph export {\n'
         is_exported = {}
         for name in names:
-            # FIXME: node size should use object width and height
+            # FIXME: Node size should use object width and height.
             astr += '  "{}" [width="2"];\n'.format(name)
             is_exported[name] = True
         for obj in self.all_objects():
@@ -98,6 +96,10 @@ class Cell:
         return astr
 
     def _fit_within(self, x1, y1, x2, y2, positions):
+        """Fit a set of positions within a specified bounding box defined by
+        (x1, y1) as the minimum coordinates and (x2, y2) as the maximum
+        coordinates. The positions are rescaled and repositioned to fit within
+        this bounding box while preserving their relative positions."""
         xmin = min([x for x, y in positions.values()])
         xmax = max([x for x, y in positions.values()])
         ymin = min([y for x, y in positions.values()])
@@ -136,7 +138,7 @@ class Cell:
         rotate = opts.get('r', 0)
         animate = opts.get('a', None)
 
-        # export parent objects in DOT format
+        # Export parent objects in DOT format.
         tmpf = tempfile.NamedTemporaryFile(delete=False)
         pipe = os.popen('{} >{}'.format(filter, tmpf.name), mode='w')
         names = [name for name in names \
@@ -145,7 +147,7 @@ class Cell:
         pipe.write(self.as_dot_string(names))
         pipe.close()
 
-        # parse GraphViz output and extract object positions
+        # Parse GraphViz output and extract object positions.
         buf = tmpf.read().decode()
         buf = re.sub('\n', '', buf)
         positions = {}
@@ -156,7 +158,7 @@ class Cell:
                 name = name.replace('\"', '')
                 positions[name] = (x, y)
 
-        # rescale all objects to fit within the area
+        # Rescale all objects to fit within the area.
         positions = self._fit_within(x1, y1, x2, y2, positions)
         for name in positions:
             if animate:
@@ -164,7 +166,8 @@ class Cell:
             else:
                 self.object(name).move(*positions[name])
 
-        # rotate all objects if necessary
+        # Rotate all objects if necessary.
+        # FIXME: This code doesn't work if -a (animate) is specified.
         if rotate:
             for name in names:
                 self.object(name).rotate_around(rotate,
@@ -176,17 +179,16 @@ class Cell:
         animation of objects with their goals by gradually changing their
         geometries toward their goals.  Fading objects are also rendered by
         gradually changig its alpha channle."""
-
         def _display(self, objects):
             if not self.last_display:
                 self.last_display = time.time()
-            # actual rendering is performed by the monitor object
+            # Actual rendering is performed by the monitor object.
             self.monitor.clear()
             self.monitor.render_objects(objects)
             self.monitor.display()
             self.frame_count += 1
 
-            # adjust the frame rate if necessary
+            # Adjust the frame rate if necessary.
             if self.rate_limit:
                 if time.time() - self.last_display < 1 / self.rate_limit:
                     delay = 1 / self.rate_limit - (time.time() -
@@ -198,7 +200,7 @@ class Cell:
         def _update_position(self, obj):
             dx = obj.goal_x - obj.x
             dy = obj.goal_y - obj.y
-            # close encough to the destination?
+            # Close encough to the destination?
             if abs(dx) < obj.velocity and abs(dy) < obj.velocity:
                 obj.velocity = None
                 return
@@ -213,14 +215,14 @@ class Cell:
 
         objs = [obj for obj in self.all_objects() if obj.visible]
         sorted_objs = sorted(objs, key=lambda x: x.priority)
-        # loop while any object is moving or fading
+        # Loop while any object is moving or fading.
         while True:
             changed = False
             for obj in sorted_objs:
-                if obj.velocity:  # is moving?
+                if obj.velocity:  # Is moving?
                     _update_position(self, obj)
                     changed = True
-                if obj.fade_out:  # is fading?
+                if obj.fade_out:  # Is fading?
                     _update_alpha(self, obj)
                     changed = True
             _display(self, sorted_objs)
@@ -235,7 +237,6 @@ class Cell:
     def update_status(self):
         """Redefine the cell object with name '_status', which is used to
         display the running status."""
-
         def status_string(self):
             """Compose and return a string summarizing the current display status."""
             elapsed = time.time() - self.time_started
@@ -245,7 +246,7 @@ class Cell:
             nobjs = len(self.objects)
             return 'FPS: {:.2f}, OBJ: {}'.format(fps, nobjs)
 
-        # FIXME: avoid hard-coding
+        # FIXME: Avoid hard-coding.
         obj = cellx.Object(
             type='text',
             name='_status',
