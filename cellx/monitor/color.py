@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 #
 #
-# Copyright (c) 2018, Hiroyuki Ohsaki.
+# Copyright (c) 2018-2023, Hiroyuki Ohsaki.
 # All rights reserved.
-#
-# $Id: null.py,v 1.4 2019/03/10 11:49:59 ohsaki Exp ohsaki $
 #
 
 # This program is free software: you can redistribute it and/or modify
@@ -120,7 +118,7 @@ class Palette:
         """Initialize color palette."""
         self.palette = {}
 
-        # define builtin color names
+        # Define builtin color names.
         for level in range(100 + 1):
             p = level / 100
             q = 1 - p
@@ -130,10 +128,10 @@ class Palette:
             self.define_color('cool{}'.format(level), 0, .8 * p,
                               .9 * p + .4 * q)
 
-        # load color names from X Window System's rgb.txt
+        # Load color names from X Window System's rgb.txt.
         for name, r, g, b in load_x11_colors():
             self.define_color(name, r, g, b)
 
-        # define aliases (nickanems)
+        # Define aliases (nickanems).
         for nickname, name in COLOR_ALIASES.items():
             self.define_color(nickname, *self.rgb(name))
