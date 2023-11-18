@@ -215,7 +215,17 @@ class SDL(Null):
     def _display(self):
         pygame.display.update()
 
-    def _process_events(self):
+    def _process_event(self, event):
+        if event.type == pygame.KEYDOWN:
+            key = event.key
+            if key == pygame.K_q or key == pygame.K_ESCAPE:
+                exit()
+            if key == pygame.K_SPACE:
+                self.pause = not self.pause
+        if event.type == pygame.VIDEOEXPOSE:
+            self._display()
+
+    def slurp_events(self):
         while True:
             event = pygame.event.poll()
             if event.type == pygame.NOEVENT:
@@ -223,22 +233,15 @@ class SDL(Null):
                     return
                 else:
                     continue
-            if event.type == pygame.KEYDOWN:
-                key = event.key
-                if key == pygame.K_q or key == pygame.K_ESCAPE:
-                    exit()
-                if key == pygame.K_SPACE:
-                    self.pause = not self.pause
-            if event.type == pygame.VIDEOEXPOSE:
-                self._display()
+            self._process_event(event)
 
     def display(self):
         self._display()
-        self._process_events()
+        self.slurp_events()
 
     def wait(self):
         self.pause = True
-        self._process_events()
+        self.slurp_events()
 
     def play(self, file):
         if not self.enable_sound:
