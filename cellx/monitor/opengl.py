@@ -212,7 +212,7 @@ class OpenGL(SDL):
     def normalize_size(self, l):
         """Normalize a size (length) L relative to the screen width. """
         # Force the minimum size to be one pixel.
-        return max(1/self.width, l / self.width)
+        return max(1 / self.width, l / self.width)
 
     def relative_position(self, x, y):
         """Calculate the relative position of a point (x, y) on the screen."""
@@ -223,7 +223,9 @@ class OpenGL(SDL):
         # FIXME: support Kanji characters
         font_data = bytes.fromhex(FONT_HIRO16B)
         # Split font data per 16 bytes.
-        return [font_data[i:i + 16][::-1] for i in range(0, len(font_data), 16)]
+        return [
+            font_data[i:i + 16][::-1] for i in range(0, len(font_data), 16)
+        ]
 
     def draw_line(self, sx, sy, dx, dy, width, color, alpha, use_line=False):
         """Draw a line or a square rod between two points with specified
@@ -420,7 +422,7 @@ class OpenGL(SDL):
         rotation and zoom effect to provide visual interest."""
         pygame.display.flip()
         # Slowly rotate the screen.
-        # self.rot_z += .03
+        self.rot_z += .03
         # self.zoom *= 0.9997
         # self.zoom *= 1.0001
 
