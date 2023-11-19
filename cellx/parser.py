@@ -58,7 +58,7 @@ class Parser:
 al | alpha (name|regexp) alpha
 an | animate name (goal_x goal_y|name[(+|-)dx(+|-)dy])
 at | attach name parent_name dx dy
-c  | color (name|regexp) color
+c  | color (name|regexp) color [alpha]
 d  | define name type args
                  bi | bitmap file [(x y|name[(+|-)dx(+|-)dy])]
                  bo | box [-f color] [width height color (x y|name[(+|-)dx(+|-)dy])]
@@ -500,6 +500,22 @@ w  | wait
                                    color)
         return obj
 
+    def _parse_color(self, args):
+        """Parse and apply a color to one or more objects.  This method takes
+        a list of arguments `args`, which can be used to specify the color and
+        optional alpha value to be applied to one or more objects in a
+        graphical context."""
+        alpha = None
+        if len(args) == 2:
+            name, color = args
+        elif len(args) == 3:
+            name, color, alpha = args
+        self.validate_color(color)
+        for n in self.expand_name(name):
+            self.cell.object(n).color = color
+            if alpha:
+                self.cell.object(n).alpha = float(alpha)
+                
     def _parse_define(self, args):
         """Parse arguments ARGS for define command."""
         name, atype, *args = args
@@ -602,10 +618,7 @@ w  | wait
             for n in self.expand_name(name):
                 self.cell.object(n).attach(self.cell.object(parent), dx, dy)
         elif cmd.startswith('c'):  # color
-            name, color = args
-            self.validate_color(color)
-            for n in self.expand_name(name):
-                self.cell.object(n).color = color
+            self._parse_color(args)
         elif cmd.startswith('de'):  # define
             self._parse_define(args)
         elif cmd.startswith('di'):  # display
