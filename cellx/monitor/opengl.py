@@ -20,10 +20,9 @@
 
 import math
 
-from cellx.monitor.sdl import SDL
+from cellx.monitor.null import Null
 import OpenGL.GL as gl
 import OpenGL.GLUT as glut
-import pygame
 
 FONT_HIRO16B = """\
 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
@@ -155,8 +154,14 @@ FONT_HIRO16B = """\
 00 00 00 39 6f 46 00 00 00 00 00 00 00 00 00 00
 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"""
 
-class OpenGL(SDL):
+class OpenGL(Null):
     def __init__(self, *kargs, **kwargs):
+        super().__init__(*kargs, **kwargs)
+        self.window = None
+        self.fixed_list = None
+        self.font_bitmap = self.load_font()
+        self.pause = False
+        self.last_button = None
         # View port settings.
         self.xoffset = 0.
         self.yoffset = 0.
@@ -164,19 +169,15 @@ class OpenGL(SDL):
         self.rot_x = 0.
         self.rot_y = 0.
         self.rot_z = 0.
-
-        self.last_button = None
-        self.fixed_list = None
-        super().__init__(*kargs, **kwargs)
-        self.font_bitmap = self.load_font()
+        self.init()
 
     def init(self):
-        super().init()
-        # Re-initialize display with OpenGL support.
-        width, height = self.width, self.height
-        self.hwscreen = pygame.display.set_mode(
-            (width, height), pygame.OPENGL | pygame.DOUBLEBUF)
+        # Initialize OpenGL.
         glut.glutInit()
+        glut.glutInitDisplayMode(glut.GLUT_RGBA | glut.GLUT_DOUBLE
+                                 | glut.GLUT_DEPTH | glut.GLUT_ALPHA)
+        glut.glutInitWindowSize(self.width, self.height)
+        self.window = glut.glutCreateWindow('cellx')
         gl.glShadeModel(gl.GL_SMOOTH)
         gl.glPixelStorei(gl.GL_UNPACK_ALIGNMENT, 1)
 
@@ -387,7 +388,7 @@ class OpenGL(SDL):
             gl.glEndList()
 
         # Reset to pre-rendered suface.
-        self._clear()
+        self.clear()
         gl.glCallList(self.fixed_list)
 
         # Render non-fixed objects.
@@ -396,7 +397,53 @@ class OpenGL(SDL):
                 continue
             self.render(obj)
 
-    def _clear(self):
+    def process_events(self):
+        def _key(*args):
+            key, x, y = args
+            if key == b'q' or key == 0x1b:
+                exit()
+            if key == b' ':
+                self.pause = not self.pause
+                # FIXME: Implement pause.
+
+        def _button(*args):
+            button, is_off, x, y = args
+            if is_off:
+                self.last_button = None
+            else:
+                if button == 3:
+                    self.zoom *= .99
+                if button == 4:
+                    self.zoom *= 1.01
+                self.last_button = button
+
+        def _motion(*args):
+            x, y = args
+            rx, ry = self.relative_position(x, y)
+            # Dragging the left button tilts the view.
+            if self.last_button == 0:
+                self.rot_x = (rx - .5) * 180
+                self.rot_y = (ry - .5) * 180
+            # Dragging the right button change the visialbe area.
+            if self.last_button == 2:
+                self.xoffset = -(rx - .5)
+                self.yoffset = ry - .5
+
+        glut.glutKeyboardFunc(_key)
+        glut.glutMouseFunc(_button)
+        glut.glutMotionFunc(_motion)
+        glut.glutMainLoopEvent()
+
+    def display(self):
+        glut.glutSwapBuffers()
+        gl.glFlush()
+        self.process_events()
+        # Slowly rotate the screen.
+        self.rot_z += .07
+        self.zoom *= 0.999
+        # self.zoom *= 1.0001
+
+    def clear(self):
         """Clear the graphics context and initialize view settings.  This
         function clears the graphics context by clearing the color and depth
         buffers. It then initializes the view settings including the view
@@ -414,42 +461,3 @@ class OpenGL(SDL):
         gl.glRotatef(self.rot_x, 0, 1, 0)
         gl.glRotatef(self.rot_y, 1, 0, 0)
         gl.glRotatef(self.rot_z, 0, 0, 1)
-
-    def _display(self):
-        """Update the display and apply gradual screen rotation and zoom.
-        This function updates the display, making any rendered graphics
-        visible on the screen. Additionally, it applies a gradual screen
-        rotation and zoom effect to provide visual interest."""
-        pygame.display.flip()
-        # Slowly rotate the screen.
-        self.rot_z += .03
-        # self.zoom *= 0.9997
-        # self.zoom *= 1.0001
-
-    def _process_event(self, event):
-        """Process user input events and update the graphics context.  This
-        function handles various user input events, such as mouse button
-        presses, mouse motion, and mouse button releases. It uses these events
-        to interactively modify the graphics context, including zooming,
-        tilting, and adjusting the visible area."""
-        super()._process_event(event)
-        # Mouse wheel zooms in and out the view.
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 4:
-                self.zoom *= .99
-            if event.button == 5:
-                self.zoom *= 1.01
-            self.last_button = event.button
-        if event.type == pygame.MOUSEBUTTONUP:
-            self.last_button = None
-        if event.type == pygame.MOUSEMOTION:
-            x, y = event.pos
-            rx, ry = self.relative_position(x, y)
-            # Dragging the left button tilts the view.
-            if self.last_button == 1:
-                self.rot_x = (rx - .5) * 180
-                self.rot_y = (ry - .5) * 180
-            # Dragging the right button change the visialbe area.
-            if self.last_button == 3:
-                self.xoffset = -(rx - .5)
-                self.yoffset = ry - .5
