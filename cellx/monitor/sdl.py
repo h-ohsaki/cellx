@@ -32,13 +32,14 @@ from cellx.monitor.null import Null
 from perlcompat import warn
 
 class SDL(Null):
-    def __init__(self, *kargs, **kwargs):
+    def __init__(self, alpha=255, *kargs, **kwargs):
         """Initialize the graphics context with default settings.  This
         constructor initializes an instance of the graphics context with default
         settings. It sets various attributes and flags, such as 'pause', 'font_cache',
         'rendered', and 'enable_sound', and then calls the 'init' method to
         perform additional initialization."""
         super().__init__(*kargs, **kwargs)
+        self.alpha = alpha
         self.pause = False
         self.font_cache = {}
         self.rendered = {}
@@ -56,6 +57,8 @@ class SDL(Null):
         width, height = self.width, self.height
         self.hwscreen = pygame.display.set_mode((width, height))
         self.fixed_surface = pygame.Surface((width, height), 0, self.hwscreen)
+        self.current_frame = pygame.Surface((width, height), 0, self.hwscreen)
+        self.current_frame.set_alpha(self.alpha)
         try:
             pygame.mixer.init()
             self.enable_sound = True
@@ -128,7 +131,7 @@ class SDL(Null):
         if obj.frame_color:
             color = self.palette.rgba(obj.frame_color, obj.alpha)
             pygame.gfxdraw.rectangle(self.screen, rect, color)
-            
+
     def _render_ellipse(self, obj):
         """Render a filled ellipse object with specified attributes.  This
         method renders a filled ellipse object with the specified center
@@ -138,19 +141,6 @@ class SDL(Null):
         rx, ry = int(obj.width / 2), int(obj.height / 2)
         pygame.gfxdraw.filled_ellipse(self.screen, int(obj.x), int(obj.y), rx,
                                       ry, color)
-
-    def _render_line(self, obj):
-        """Render a line segment with specified attributes.  This method
-        renders a line segment with the specified starting and ending
-        coordinates, line width, color, and alpha transparency. It utilizes
-        the 'draw_line' method to perform the rendering."""
-        self.draw_line(obj.x, obj.y, obj.x2, obj.y2, obj.width, obj.color,
-                       obj.alpha)
-
-    def _render_link(self, obj):
-        src, dst = obj.src, obj.dst
-        self.draw_line(src.x, src.y, dst.x, dst.y, obj.width, obj.color,
-                       obj.alpha)
 
     def _render_spline(self, obj):
         """Render a cubic Bezier spline curve with specified attributes.  This
@@ -208,52 +198,6 @@ class SDL(Null):
             self.screen.blit(text, (xpos, ypos))
             ypos += text.get_height()
 
-    def _render_wire(self, obj):
-        """Render a wire or line with specified attributes.  This method
-        renders a wire or line with the specified starting and ending
-        coordinates, line width, color, and alpha transparency. It extends the
-        line slightly to draw smooth corners by splitting it into
-        segments. Each segment is rendered using the 'draw_line' method."""
-        x, y = obj.x, obj.y
-        x2, y2 = obj.x2, obj.y2
-        # Slightly extend the line length to draw smooth corners.
-        xsign = cellx.cmp(x2 - x, 0)
-        ysign = cellx.cmp(y2 - y, 0)
-        delta = obj.width / 2
-        xmid = (x + x2) / 2
-        segments = [[x, y, xmid + xsign * delta, y], \
-            [xmid, y - ysign * delta, xmid, y2 + ysign * delta], \
-            [xmid - xsign * delta, y2, x2, y2]]
-        for segment in segments:
-            self.draw_line(*segment, obj.width, obj.color, obj.alpha)
-
-    def render(self, obj):
-        """Render an object with its specified type-specific rendering method.
-        This method renders an object using its specified rendering method
-        based on its 'type_' attribute. The 'type_' attribute determines the
-        type of object to be rendered, such as 'bitmap', 'box', 'ellipse',
-        'line', 'link', 'polygon', 'spline', 'text', or 'wire'. The
-        appropriate rendering method is called for the given object."""
-        type = obj.type_
-        if type == 'bitmap':
-            self._render_bitmap(obj)
-        elif type == 'box':
-            self._render_box(obj)
-        elif type == 'ellipse':
-            self._render_ellipse(obj)
-        elif type == 'line':
-            self._render_line(obj)
-        elif type == 'link':
-            self._render_link(obj)
-        elif type == 'polygon':
-            self._render_polygon(obj)
-        elif type == 'spline':
-            self._render_spline(obj)
-        elif type == 'text':
-            self._render_text(obj)
-        elif type == 'wire':
-            self._render_wire(obj)
-
     def render_objects(self, objs):
         """Render a list of objects, both fixed and non-fixed.  This method
         renders a list of objects, iterating through the provided 'objs'
@@ -269,40 +213,20 @@ class SDL(Null):
                 self.rendered[obj] = True
 
         # Reset to pre-rendered suface.
-        self.hwscreen.blit(self.fixed_surface, (0, 0))
+        self.current_frame.blit(self.fixed_surface, (0, 0))
 
         # Render non-fixed objects.
-        self.screen = self.hwscreen
+        self.screen = self.current_frame
         for obj in objs:
             if not obj.fixed:
                 self.render(obj)
 
-    def _display(self):
-        pygame.display.update()
+        self.hwscreen.blit(self.current_frame, (0, 0))
 
-    def _process_event(self, event):
-        """Process a Pygame event and handle key presses and video expose
-        events.  This method is responsible for processing Pygame events,
-        specifically handling key presses and video expose events. Key presses
-        for 'q' or 'ESC' keys exit the program, while the 'SPACE' key toggles
-        the 'pause' state.  Video expose events trigger a screen redisplay."""
-        if event.type == pygame.KEYDOWN:
-            key = event.key
-            if key == pygame.K_q or key == pygame.K_ESCAPE:
-                exit()
-            if key == pygame.K_SPACE:
-                self.pause = not self.pause
-        if event.type == pygame.VIDEOEXPOSE:
-            self._display()
-
-    def slurp_events(self):
-        """Continuously poll Pygame events and process them until a specific
-        condition is met.  This method continuously polls Pygame events using
-        'pygame.event.poll()' and processes each event using the
-        '_process_event' method. It keeps processing events until a certain
-        condition is met. If no events are available ('pygame.NOEVENT'), it
-        checks the 'pause' state. If not paused, it returns from the
-        method. If paused, it continues to poll for events."""
+    def process_events(self):
+        """Process pygame events in an infinite loop until explicitly
+        exited. This method continuously polls for pygame events and handles
+        them accordingly."""
         while True:
             event = pygame.event.poll()
             if event.type == pygame.NOEVENT:
@@ -310,15 +234,22 @@ class SDL(Null):
                     return
                 else:
                     continue
-            self._process_event(event)
+            if event.type == pygame.KEYDOWN:
+                key = event.key
+                if key == pygame.K_q or key == pygame.K_ESCAPE:
+                    exit()
+                if key == pygame.K_SPACE:
+                    self.pause = not self.pause
+            if event.type == pygame.VIDEOEXPOSE:
+                pygame.display.update()
 
     def display(self):
-        self._display()
-        self.slurp_events()
+        pygame.display.update()
+        self.process_events()
 
     def wait(self):
         self.pause = True
-        self.slurp_events()
+        self.process_events()
 
     def play(self, file):
         """Play a sound file if sound mixer is enabled.  This method plays a
