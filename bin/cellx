@@ -37,8 +37,8 @@ usage: {sys.argv[0]} [-dEg] [-c #] [-M class] [-F rate] [-L rate] [-A alpha] [fi
   -c #      select color scheme
   -M class  monitor class (Null/SDL/SDL_Filter/PostScript/OpenGL) (default: SDL)
   -F rate   the number of frames per animation/fading
-  -L rate   limit the frame rate (default: infinity)
-  -A alpha  alpha for filtering effect (default: 64)
+  -L rate   limit the frame rate (default: 60)
+  -A alpha  alpha for filtering effect (default: 128)
 
 cellx commands:
 {cellx.Parser().help()}""")
@@ -72,8 +72,8 @@ def main():
     enable_opengl = opt.g
     color_scheme = int(opt.c) if opt.c else 0
     frame_rate = float(opt.F) if opt.F else 30
-    rate_limit = float(opt.L) if opt.L else None
-    alpha = int(opt.A) if opt.A else 64
+    rate_limit = float(opt.L) if opt.L else 60
+    alpha = int(opt.A) if opt.A else 128
 
     # Identify monitor class.
     monitor_class = 'SDL'
