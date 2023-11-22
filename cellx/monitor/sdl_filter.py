@@ -26,7 +26,7 @@ from cellx.monitor.sdl import SDL
 
 class SDL_Filter(SDL):
     def __init__(self, alpha=40, *kargs, **kwargs):
-        super().__init__()
+        super().__init__(*kargs, **kwargs)
         self.alpha = alpha
 
         width, height = self.width, self.height
