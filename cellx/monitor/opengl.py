@@ -19,6 +19,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import math
+import time
 
 from cellx.monitor.null import Null
 import OpenGL.GL as gl
@@ -161,6 +162,7 @@ class OpenGL(Null):
         self.fixed_list = None
         self.font_bitmap = self.load_font()
         self.pause = False
+        self.exit = False
         self.last_button = None
         # View port settings.
         self.xoffset = 0.
@@ -175,7 +177,8 @@ class OpenGL(Null):
         # Initialize OpenGL.
         glut.glutInit()
         glut.glutInitDisplayMode(glut.GLUT_RGBA | glut.GLUT_DOUBLE
-                                 | glut.GLUT_DEPTH | glut.GLUT_ALPHA)
+                                 | glut.GLUT_DEPTH | glut.GLUT_ALPHA
+                                 | glut.GLUT_ACCUM)
         glut.glutInitWindowSize(self.width, self.height)
         self.window = glut.glutCreateWindow('cellx')
         gl.glShadeModel(gl.GL_SMOOTH)
@@ -203,6 +206,10 @@ class OpenGL(Null):
         gl.glLight(gl.GL_LIGHT0, gl.GL_AMBIENT, (.3, .3, .3, 1))
         gl.glLight(gl.GL_LIGHT0, gl.GL_DIFFUSE, (.7, .7, .7, 1))
         gl.glLight(gl.GL_LIGHT0, gl.GL_SPECULAR, (1, 1, 1, 1))
+
+        # initialize accumulation buffer
+        gl.glClearAccum(0.0, 0.0, 0.0, 0.0)
+        gl.glClear(gl.GL_ACCUM_BUFFER_BIT)
 
     def normalize_position(self, x, y):
         """Normalize a 2D position (x, y) relative to the center of the
@@ -401,7 +408,7 @@ class OpenGL(Null):
         def _key(*args):
             key, x, y = args
             if key == b'q' or key == 0x1b:
-                exit()
+                self.exit = True
             if key == b' ':
                 self.pause = not self.pause
                 # FIXME: Implement pause.
@@ -433,14 +440,23 @@ class OpenGL(Null):
         glut.glutMouseFunc(_button)
         glut.glutMotionFunc(_motion)
         glut.glutMainLoopEvent()
+        while self.pause:
+            glut.glutMainLoopEvent()
+            time.sleep(1 / 30)
+        if self.exit:
+            exit()
 
     def display(self):
+        gl.glAccum(gl.GL_MULT, 1 - self.alpha / 256)
+        gl.glAccum(gl.GL_ACCUM, self.alpha / 256)
+        gl.glAccum(gl.GL_RETURN, 1)
+
         glut.glutSwapBuffers()
         gl.glFlush()
         self.process_events()
         # Slowly rotate the screen.
-        self.rot_z += .07
-        self.zoom *= 0.999
+        self.rot_z += .03
+        self.zoom *= 0.9997
         # self.zoom *= 1.0001
 
     def clear(self):
