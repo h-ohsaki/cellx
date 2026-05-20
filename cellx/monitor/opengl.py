@@ -174,6 +174,9 @@ class OpenGL(Null):
         self.init()
 
     def init(self):
+        def _display():
+            pass
+
         # Initialize OpenGL.
         glut.glutInit()
         glut.glutInitDisplayMode(glut.GLUT_RGBA | glut.GLUT_DOUBLE
@@ -181,6 +184,7 @@ class OpenGL(Null):
                                  | glut.GLUT_ACCUM)
         glut.glutInitWindowSize(self.width, self.height)
         self.window = glut.glutCreateWindow('cellx')
+        glut.glutDisplayFunc(_display)
         gl.glShadeModel(gl.GL_SMOOTH)
         gl.glPixelStorei(gl.GL_UNPACK_ALIGNMENT, 1)
 
@@ -455,8 +459,8 @@ class OpenGL(Null):
         gl.glFlush()
         self.process_events()
         # Slowly rotate the screen.
-        self.rot_z += .03
-        self.zoom *= 0.9997
+        self.rot_z += .05
+        self.zoom *= 0.9995
         # self.zoom *= 1.0001
 
     def clear(self):

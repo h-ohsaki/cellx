@@ -1,15 +1,21 @@
-define l1 line 0.2 0.2 0.8 0.5 4 yellow
+define l1 line .2 .2 .8 .5 4 yellow
 display
 wait
 
-define l2 line -h 0.7 0.2 0.2 0.8 0.05 cyan
+define l2 line -h .7 .2 .2 .8 .05 cyan
 display
 wait
 
-define l3 line -t 0.1 0.4 0.9 0.2 10 blue
+define l3 line -t .1 .4 .9 .2 10 blue
 display
 wait
 
-define l4 line -ht 0.7 0.8 0.9 0.2 10 cyan
+define l4 line -ht .7 .8 .9 .2 10 cyan
+display
+wait
+
+define b1 box 10 10 cyan .1 .1
+define b2 box 10 10 cyan .9 .9
+define l5 line b1 b2 10 yellow
 display
 wait

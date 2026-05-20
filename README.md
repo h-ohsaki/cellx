@@ -156,4 +156,4 @@ SDL/OpenGL/PostScript/AVI/PDF (http://www.lsnl.jp/~ohsaki/software/cell)
 
 # AUTHOR
 
-Hiroyuki Ohsaki <ohsaki[atmark]lsnl.jp>
+Hiroyuki Ohsaki <code[atmark]lsnl.jp>

@@ -84,7 +84,7 @@ def main():
     # Determine screen resolution.
     width, height = 800, 600
     if full_screen:
-        width, height = 1920, 1080
+        width, height = 1920, 1200
 
     # Create monitor object.
     cls = eval('cellx.monitor.' + monitor_class)

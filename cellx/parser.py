@@ -348,6 +348,8 @@ w  | wait
         """Createa a line object with name NAME.  Parameters (x, y, x2, y2,
         width and color) are taken from ARGS.  Arrowhead and arrowtail are
         created if 'h' option and 't' option are specified, respectively."""
+        # FIXME: Support object-based geometries.
+        # FIXME: Support width in relative length.
         x, y, x2, y2, width, color = get_args(
             args, [0.25, 0.25, 0.75, 0.75, 1, 'white'])
         x, y = self.expand_position(x, y)

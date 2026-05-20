@@ -7,9 +7,9 @@ with open('README.md', 'r') as fh:
 
 setuptools.setup(
     name="cellx",
-    version="1.14",
+    version="1.15",
     author="Hiroyuki Ohsaki",
-    author_email="ohsaki@lsnl.jp",
+    author_email="code@lsnl.jp",
     description=
     "command-driven drawing/visualization/animation/presentation tool",
     long_description=long_description,
